@@ -65,6 +65,7 @@ export function tokenize(expression: string): TokenizeResult {
   const tokens: EngineToken[] = [];
   let index = 0;
   const length = expression.length;
+  let hasPendingUnaryPlus = false;
 
   while (index < length) {
     const char = expression[index]!;
@@ -119,6 +120,7 @@ export function tokenize(expression: string): TokenizeResult {
         };
       }
 
+      hasPendingUnaryPlus = false;
       tokens.push({
         type: 'number',
         value: numStr,
@@ -130,6 +132,7 @@ export function tokenize(expression: string): TokenizeResult {
 
     // 3. Parentheses
     if (char === '(') {
+      hasPendingUnaryPlus = false;
       tokens.push({
         type: 'left-paren',
         value: '(',
@@ -140,6 +143,16 @@ export function tokenize(expression: string): TokenizeResult {
     }
 
     if (char === ')') {
+      if (hasPendingUnaryPlus) {
+        return {
+          success: false,
+          error: {
+            code: 'SyntaxError',
+            message: `Unexpected closing parenthesis after operator '+' at position ${startPos}`,
+            position: startPos,
+          },
+        };
+      }
       tokens.push({
         type: 'right-paren',
         value: ')',
@@ -162,6 +175,16 @@ export function tokenize(expression: string): TokenizeResult {
         prevToken.type === 'left-paren';
 
       if (normalized === '-') {
+        if (hasPendingUnaryPlus) {
+          return {
+            success: false,
+            error: {
+              code: 'SyntaxError',
+              message: `Unexpected operator '-' at position ${startPos}`,
+              position: startPos,
+            },
+          };
+        }
         if (isUnaryContext) {
           tokens.push({
             type: 'unary-operator',
@@ -182,10 +205,31 @@ export function tokenize(expression: string): TokenizeResult {
       }
 
       if (normalized === '+') {
-        if (isUnaryContext) {
-          // Unary plus (+5) is a no-op in mathematics, but we can safely ignore it
+        if (!prevToken || prevToken.type === 'left-paren') {
+          if (hasPendingUnaryPlus) {
+            return {
+              success: false,
+              error: {
+                code: 'SyntaxError',
+                message: `Unexpected operator '+' at position ${startPos}`,
+                position: startPos,
+              },
+            };
+          }
+          // Unary plus (+5) is a no-op at start or after left-paren, but track it so ++5 errors
+          hasPendingUnaryPlus = true;
           index++;
           continue;
+        } else if (prevToken.type === 'binary-operator' || prevToken.type === 'unary-operator') {
+          // Multiple operators: e.g. 2++3, 2*+3, 2-+3
+          return {
+            success: false,
+            error: {
+              code: 'SyntaxError',
+              message: `Unexpected operator '+' at position ${startPos}`,
+              position: startPos,
+            },
+          };
         } else {
           tokens.push({
             type: 'binary-operator',
@@ -198,7 +242,7 @@ export function tokenize(expression: string): TokenizeResult {
       }
 
       // If *, /, % appears in a unary context (e.g. "* 5" or "5 + * 2"), that is a syntax error
-      if (isUnaryContext) {
+      if (isUnaryContext || hasPendingUnaryPlus) {
         return {
           success: false,
           error: {
@@ -248,6 +292,7 @@ export function tokenize(expression: string): TokenizeResult {
 
     // 6. Square root symbol (√)
     if (char === '√') {
+      hasPendingUnaryPlus = false;
       tokens.push({
         type: 'function',
         value: 'sqrt',
@@ -268,6 +313,7 @@ export function tokenize(expression: string): TokenizeResult {
 
       // Mathematical constants
       if (lower === 'pi' || word === 'π') {
+        hasPendingUnaryPlus = false;
         tokens.push({
           type: 'number',
           value: word,
@@ -278,6 +324,7 @@ export function tokenize(expression: string): TokenizeResult {
       }
 
       if (lower === 'e') {
+        hasPendingUnaryPlus = false;
         tokens.push({
           type: 'number',
           value: word,
@@ -289,6 +336,7 @@ export function tokenize(expression: string): TokenizeResult {
 
       // Scientific functions
       if (SCIENTIFIC_FUNCTIONS.has(lower)) {
+        hasPendingUnaryPlus = false;
         tokens.push({
           type: 'function',
           value: lower,
@@ -326,6 +374,17 @@ export function tokenize(expression: string): TokenizeResult {
         code: 'InvalidExpression',
         message: `Unexpected character '${char}' at position ${startPos}`,
         position: startPos,
+      },
+    };
+  }
+
+  if (hasPendingUnaryPlus) {
+    return {
+      success: false,
+      error: {
+        code: 'SyntaxError',
+        message: 'Unexpected end of expression after operator \'+\'',
+        position: length - 1,
       },
     };
   }

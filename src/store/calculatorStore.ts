@@ -113,22 +113,30 @@ export function calculatorReducer(
         };
       }
 
-      // 3. If in entering state: prevent leading zero duplicate like '00'
-      if (state.expression === '0') {
-        return {
-          ...state,
-          expression: digit,
-          displayValue: digit,
-        };
-      }
-
-      // If ends with an operator followed by ' 0', replace the lone zero
-      if (/\s[0]$/.test(state.expression)) {
+      // 3. If in entering state: handle lone leading zeros e.g. '0', '5 + 0', '(0', '-0'
+      const lastSegment = getLastNumericSegment(state.expression);
+      if (lastSegment === '0') {
+        if (digit === '0') {
+          // Prevent duplicate leading zeros like '00', '(00', '-00'
+          return state;
+        }
+        // Replace lone leading zero with non-zero digit: e.g. '0' -> '7', '5 + 0' -> '5 + 7', '(0' -> '(7', '-0' -> '-7'
         const updatedExpr = state.expression.slice(0, -1) + digit;
         return {
           ...state,
           expression: updatedExpr,
           displayValue: digit,
+        };
+      }
+
+      // 4. If entered after closing parenthesis, postfix operator, or constant, insert implicit multiplication ' × <digit>'
+      if (/[)πe!]$/.test(state.expression.trimEnd())) {
+        const nextExpr = `${state.expression.trimEnd()} × ${digit}`;
+        return {
+          ...state,
+          expression: nextExpr,
+          displayValue: digit,
+          status: 'entering',
         };
       }
 
@@ -181,6 +189,17 @@ export function calculatorReducer(
           ...state,
           expression: nextExpr,
           displayValue: '0.',
+        };
+      }
+
+      // If expression ends in closing paren or constant, insert implicit multiplication ' × 0.'
+      if (/[)πe!]$/.test(state.expression.trimEnd())) {
+        const nextExpr = `${state.expression.trimEnd()} × 0.`;
+        return {
+          ...state,
+          expression: nextExpr,
+          displayValue: '0.',
+          status: 'entering',
         };
       }
 

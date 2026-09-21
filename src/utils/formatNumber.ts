@@ -11,7 +11,7 @@
  * @returns Formatted string for UI presentation
  */
 export function formatDisplayNumber(value: number | string, maxDecimals: number = 10): string {
-  const num = typeof value === 'string' ? parseFloat(value) : value;
+  let num = typeof value === 'string' ? parseFloat(value) : value;
 
   if (Number.isNaN(num)) {
     return 'Error';
@@ -21,9 +21,17 @@ export function formatDisplayNumber(value: number | string, maxDecimals: number 
     return num > 0 ? 'Infinity' : '-Infinity';
   }
 
+  // Normalize negative zero (-0) to 0
+  if (Object.is(num, -0) || num === 0) {
+    return '0';
+  }
+
   // Handle scientific notation for very large/small numbers
   if (Math.abs(num) >= 1e15 || (Math.abs(num) > 0 && Math.abs(num) < 1e-7)) {
-    return num.toExponential(6);
+    return num
+      .toExponential(6)
+      .replace(/(\.\d*?[1-9])0+e/, '$1e')
+      .replace(/\.0+e/, 'e');
   }
 
   // Limit decimals without trailing zeros

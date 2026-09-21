@@ -10,6 +10,8 @@ export interface HistoryPanelProps {
   readonly onClearHistory?: (() => void) | undefined;
   readonly onDeleteItem?: ((id: string) => void) | undefined;
   readonly onExportHistory?: (() => void) | undefined;
+  readonly onClose?: (() => void) | undefined;
+  readonly className?: string | undefined;
 }
 
 /**
@@ -23,6 +25,8 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
   onClearHistory,
   onDeleteItem,
   onExportHistory,
+  onClose,
+  className,
 }) => {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState<boolean>(false);
 
@@ -44,13 +48,13 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
     <>
       <aside
         aria-label="Calculation History"
-        className="
-          w-full rounded-calc-shell bg-calc-surface border border-calc-border-subtle
-          p-4 sm:p-5 flex flex-col h-full shadow-calc-shell
-        "
+        className={`
+          w-full bg-calc-surface flex flex-col h-full
+          ${className ?? 'rounded-calc-shell border border-calc-border-subtle p-4 sm:p-5 shadow-calc-shell'}
+        `}
       >
-        {/* Header with Title, Count Badge, Export and Clear Actions */}
-        <div className="flex items-center justify-between pb-3 border-b border-calc-border-subtle mb-3">
+        {/* Header with Title, Count Badge, Export, Clear, and Close Actions */}
+        <div className="flex items-center justify-between pb-3 border-b border-calc-border-subtle mb-3 shrink-0">
           <div className="flex items-center gap-2">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-calc-text-secondary">
               History
@@ -94,6 +98,37 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
                 "
               >
                 Clear
+              </button>
+            )}
+
+            {/* Close Button */}
+            {onClose && (
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close history panel"
+                title="Close history panel"
+                className="
+                  min-h-[36px] min-w-[36px] p-1.5 text-xs rounded-md font-medium transition-colors flex items-center justify-center
+                  text-calc-text-muted hover:text-calc-text-primary hover:bg-calc-surface-secondary
+                  border border-calc-border-subtle hover:border-calc-border-strong
+                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-calc-accent
+                "
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
               </button>
             )}
           </div>

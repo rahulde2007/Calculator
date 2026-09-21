@@ -12,4 +12,5 @@ export { OPERATORS, isOperator, getOperator } from './operators';
 export { ENGINE_CONSTANTS, MATH_CONSTANTS, CALCULATION_ERROR_MESSAGES } from './constants';
 export { toRadians, fromRadians, cleanTrigValue, isTangentUndefined } from './trigonometry';
 export { executeScientificFunction, calculateFactorial, calculatePower } from './functions';
+export { validateExpression, type ValidationResult } from './validator';
 

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calculator } from './components/calculator/Calculator';
 import { HistoryPanel } from './components/history/HistoryPanel';
+import { UnitConverter } from './components/converter/UnitConverter';
 import { Modal } from './components/common/Modal';
 import { IconButton } from './components/common/IconButton';
 import { SettingsModal } from './components/settings/SettingsModal';
@@ -18,6 +19,19 @@ export const App: React.FC = () => {
 
   const [isKeyboardHelpOpen, setIsKeyboardHelpOpen] = useState<boolean>(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);
+  const [isConverterOpen, setIsConverterOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (isHistoryOpen) setIsHistoryOpen(false);
+        if (isConverterOpen) setIsConverterOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isHistoryOpen, isConverterOpen]);
 
   return (
     <div className="min-h-screen bg-calc-bg text-calc-text-primary flex flex-col justify-between selection:bg-calc-accent/30 selection:text-white transition-colors duration-200">
@@ -65,6 +79,37 @@ export const App: React.FC = () => {
           {/* Right Action Utilities */}
           <div className="flex items-center gap-2 sm:gap-3">
             <IconButton
+              ariaLabel={
+                calculator.state.history.length > 0
+                  ? `Calculation History (${calculator.state.history.length} item${calculator.state.history.length === 1 ? '' : 's'})`
+                  : 'Calculation History'
+              }
+              title="Calculation History"
+              variant={isHistoryOpen ? 'active' : 'default'}
+              size="sm"
+              onClick={() => setIsHistoryOpen((prev) => !prev)}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+              <span className="text-xs font-medium px-1 hidden sm:inline">History</span>
+              {calculator.state.history.length > 0 && (
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-calc-accent/20 text-calc-accent font-bold ml-0.5">
+                  {calculator.state.history.length}
+                </span>
+              )}
+            </IconButton>
+
+            <IconButton
               ariaLabel="Keyboard Shortcuts Information"
               title="Keyboard Shortcuts"
               variant="default"
@@ -110,23 +155,75 @@ export const App: React.FC = () => {
 
       {/* Main Interactive Stage */}
       <main className="flex-1 max-w-6xl w-full mx-auto px-3 xs:px-4 sm:px-6 py-2.5 xs:py-3.5 sm:py-6 md:py-8 flex flex-col items-center justify-center">
-        <div className="w-full flex flex-col lg:flex-row items-center lg:items-start justify-center gap-4 sm:gap-6 lg:gap-8">
+        <div className="w-full flex items-center justify-center">
           {/* Main Stage: Connected Calculator Shell */}
           <section aria-label="Interactive Calculator" className="w-full flex justify-center">
-            <Calculator calculator={calculator} />
-          </section>
-
-          {/* Real-time Calculation History Drawer */}
-          <aside className="w-full max-w-[360px] xs:max-w-[390px] sm:max-w-[440px] lg:w-80 h-[520px]">
-            <HistoryPanel
-              items={calculator.state.history}
-              onSelectItem={calculator.loadHistoryItem}
-              onClearHistory={calculator.clearHistory}
-              onDeleteItem={calculator.deleteHistoryItem}
+            <Calculator
+              calculator={calculator}
+              onOpenConverter={() => setIsConverterOpen((prev) => !prev)}
+              isConverterOpen={isConverterOpen}
             />
-          </aside>
+          </section>
         </div>
       </main>
+
+      {/* Calculation History Slide-Over Drawer / Modal Overlay */}
+      {isHistoryOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Calculation History"
+          className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm transition-opacity duration-200"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsHistoryOpen(false);
+          }}
+        >
+          <div
+            className="
+              relative w-full max-w-full sm:max-w-md h-full bg-calc-surface border-l border-calc-border-subtle
+              shadow-2xl flex flex-col p-4 sm:p-5 overflow-hidden transition-transform duration-200
+            "
+          >
+            <HistoryPanel
+              items={calculator.state.history}
+              onSelectItem={(item) => {
+                calculator.loadHistoryItem(item);
+              }}
+              onClearHistory={calculator.clearHistory}
+              onDeleteItem={calculator.deleteHistoryItem}
+              onClose={() => setIsHistoryOpen(false)}
+              className="h-full border-0 rounded-none shadow-none p-0 bg-transparent"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Unit Converter Overlay (Centered, matching Calculator card footprint and proportions) */}
+      {isConverterOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Unit Converter"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 xs:p-4 sm:p-6 bg-black/60 backdrop-blur-sm transition-opacity duration-200 overflow-y-auto"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsConverterOpen(false);
+          }}
+        >
+          <div
+            className="
+              relative w-full max-w-[360px] xs:max-w-[390px] sm:max-w-[440px]
+              rounded-calc-shell bg-calc-surface/95 border border-calc-border-subtle
+              shadow-calc-shell backdrop-blur-2xl p-3.5 xs:p-4 sm:p-5 flex flex-col my-auto
+              transition-all duration-200
+            "
+          >
+            <UnitConverter
+              onClose={() => setIsConverterOpen(false)}
+              className="border-0 rounded-none shadow-none p-0 bg-transparent"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Keyboard Shortcuts Modal */}
       <Modal

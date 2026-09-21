@@ -9,13 +9,19 @@ import { useKeyboard } from '../../hooks/useKeyboard';
 
 export interface CalculatorProps {
   readonly calculator?: UseCalculatorReturn | undefined;
+  readonly onOpenConverter?: (() => void) | undefined;
+  readonly isConverterOpen?: boolean | undefined;
 }
 
 /**
  * Interactive Calculator Container Component.
  * Binds the reactive state machine and keyboard inputs to Display, Keypad, and ScientificKeypad.
  */
-export const Calculator: React.FC<CalculatorProps> = ({ calculator: externalCalculator }) => {
+export const Calculator: React.FC<CalculatorProps> = ({
+  calculator: externalCalculator,
+  onOpenConverter,
+  isConverterOpen = false,
+}) => {
   const defaultCalculator = useCalculator();
   const calc = externalCalculator ?? defaultCalculator;
   const {
@@ -82,11 +88,11 @@ export const Calculator: React.FC<CalculatorProps> = ({ calculator: externalCalc
           <button
             type="button"
             role="tab"
-            aria-selected={state.mode === 'standard'}
+            aria-selected={!isConverterOpen && state.mode === 'standard'}
             onClick={() => setMode('standard')}
             className={`
               min-h-[36px] px-3 py-1 text-[11px] font-medium rounded-md transition-all duration-150 flex items-center justify-center
-              ${state.mode === 'standard'
+              ${!isConverterOpen && state.mode === 'standard'
                 ? 'bg-calc-accent text-white shadow-sm font-semibold'
                 : 'text-calc-text-secondary hover:text-calc-text-primary'}
             `}
@@ -96,17 +102,33 @@ export const Calculator: React.FC<CalculatorProps> = ({ calculator: externalCalc
           <button
             type="button"
             role="tab"
-            aria-selected={state.mode === 'scientific'}
+            aria-selected={!isConverterOpen && state.mode === 'scientific'}
             onClick={() => setMode('scientific')}
             className={`
               min-h-[36px] px-3 py-1 text-[11px] font-medium rounded-md transition-all duration-150 flex items-center justify-center
-              ${state.mode === 'scientific'
+              ${!isConverterOpen && state.mode === 'scientific'
                 ? 'bg-calc-accent text-white shadow-sm font-semibold'
                 : 'text-calc-text-secondary hover:text-calc-text-primary'}
             `}
           >
             Scientific
           </button>
+          {onOpenConverter && (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={isConverterOpen}
+              onClick={onOpenConverter}
+              className={`
+                min-h-[36px] px-3 py-1 text-[11px] font-medium rounded-md transition-all duration-150 flex items-center justify-center
+                ${isConverterOpen
+                  ? 'bg-calc-accent text-white shadow-sm font-semibold'
+                  : 'text-calc-text-secondary hover:text-calc-text-primary'}
+              `}
+            >
+              Converter
+            </button>
+          )}
         </div>
       </header>
 

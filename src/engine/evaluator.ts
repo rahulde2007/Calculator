@@ -2,6 +2,7 @@ import type { EngineToken, CalculationResult, CalculationOptions, AngleUnit } fr
 import { parseExpressionToRPN } from './parser';
 import { normalizePrecision, isSafeCalculationNumber } from './precision';
 import { executeScientificFunction, calculateFactorial, calculatePower } from './functions';
+import { validateExpression } from './validator';
 
 /**
  * Stack-based Evaluator for Reverse Polish Notation (RPN) queues.
@@ -282,6 +283,14 @@ export function calculate(
   expression: string,
   options?: CalculationOptions | AngleUnit
 ): CalculationResult {
+  const validation = validateExpression(expression);
+  if (!validation.valid && validation.error) {
+    return {
+      success: false,
+      error: validation.error,
+    };
+  }
+
   const parsed = parseExpressionToRPN(expression);
   if (!parsed.success) {
     return {
