@@ -1,0 +1,142 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root,
+  [data-theme='dark'],
+  .dark {
+    color-scheme: dark;
+
+    /* Semantic Color Tokens (Dark Mode Primary) */
+    --color-app-bg: 222 47% 7%;            /* #090D16 - Deep cosmic navy/black */
+    --color-surface: 217 33% 12%;           /* #131B2E - Calculator shell surface */
+    --color-surface-secondary: 215 28% 17%; /* #1E293B - Secondary panels / keypads */
+    --color-surface-elevated: 217 33% 22%;  /* #25334D - Display inset / elevated items */
+
+    /* Text Tokens */
+    --color-text-primary: 210 40% 98%;      /* #F8FAFC - High contrast readout */
+    --color-text-secondary: 215 20% 65%;    /* #94A3B8 - Subtitles / expressions */
+    --color-text-muted: 215 16% 47%;        /* #64748B - Disabled / inactive badges */
+
+    /* Border Tokens */
+    --color-border-subtle: 215 25% 20%;     /* #26334A - Subtle inner boundaries */
+    --color-border-strong: 215 25% 30%;     /* #384B6C - Distinct focus / card rims */
+
+    /* Brand & Accent Tokens */
+    --color-accent: 217 91% 60%;            /* #3B82F6 - Primary electric blue */
+    --color-accent-hover: 217 91% 53%;      /* #2563EB - Blue hover */
+    --color-accent-subtle: 217 91% 60% / 0.15;
+
+    /* Keypad Variant Tokens */
+    --color-key-number: 215 25% 18%;        /* Standard number keys */
+    --color-key-number-hover: 215 25% 24%;
+    --color-key-operator: 38 92% 50%;       /* Amber / orange operators */
+    --color-key-operator-hover: 38 92% 44%;
+    --color-key-action: 217 33% 25%;        /* Clear / backspace / utility */
+    --color-key-action-hover: 217 33% 32%;
+    --color-key-equals: 217 91% 55%;        /* Primary blue equals */
+    --color-key-equals-hover: 217 91% 48%;
+
+    /* Feedback Tokens */
+    --color-error: 350 89% 60%;             /* #F43F5E - Rose error */
+    --color-warning: 38 92% 50%;            /* #F59E0B - Amber warning */
+    --color-success: 152 76% 45%;           /* #10B981 - Emerald success */
+
+    /* Elevation & Depth Shadows */
+    --shadow-shell: 0 25px 60px -15px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.06);
+    --shadow-display: inset 0 2px 6px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.05);
+    --shadow-button: 0 2px 4px rgba(0, 0, 0, 0.25), 0 1px 0 rgba(255, 255, 255, 0.05) inset;
+    --shadow-button-active: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+    --shadow-equals: 0 4px 14px rgba(59, 130, 246, 0.4), 0 1px 0 rgba(255, 255, 255, 0.2) inset;
+  }
+
+  /* Architectural Light Mode Tokens */
+  [data-theme='light'],
+  .light {
+    color-scheme: light;
+    --color-app-bg: 210 40% 98%;            /* #F8FAFC - Soft crisp canvas */
+    --color-surface: 0 0% 100%;             /* #FFFFFF - Shell card */
+    --color-surface-secondary: 214 32% 93%; /* #E2E8F0 - Inset panels */
+    --color-surface-elevated: 210 40% 96%;  /* #F1F5F9 - Display background */
+
+    --color-text-primary: 222 47% 11%;      /* #0F172A - Deep charcoal */
+    --color-text-secondary: 215 25% 35%;    /* #334155 - Distinct subtitles */
+    --color-text-muted: 215 16% 50%;        /* #64748B - Badges / inactive */
+
+    --color-border-subtle: 214 32% 88%;     /* #CBD5E1 */
+    --color-border-strong: 214 32% 76%;     /* #94A3B8 */
+
+    --color-accent: 217 91% 56%;            /* #2563EB - Vivid blue */
+    --color-accent-hover: 217 91% 48%;      /* #1D4ED8 */
+    --color-accent-subtle: 217 91% 56% / 0.12;
+
+    --color-key-number: 0 0% 100%;          /* White keys */
+    --color-key-number-hover: 214 32% 95%;
+    --color-key-operator: 38 92% 48%;       /* Amber / orange operators */
+    --color-key-operator-hover: 38 92% 42%;
+    --color-key-action: 214 32% 88%;        /* Slate utility keys */
+    --color-key-action-hover: 214 32% 82%;
+    --color-key-equals: 217 91% 52%;
+    --color-key-equals-hover: 217 91% 45%;
+
+    --color-error: 350 89% 50%;
+    --color-warning: 38 92% 45%;
+    --color-success: 152 76% 40%;
+
+    /* Elevation & Depth Shadows for Light Mode */
+    --shadow-shell: 0 20px 45px -12px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(15, 23, 42, 0.08);
+    --shadow-display: inset 0 2px 5px rgba(15, 23, 42, 0.06), 0 1px 0 rgba(255, 255, 255, 0.8);
+    --shadow-button: 0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 0 rgba(255, 255, 255, 0.9) inset;
+    --shadow-button-active: inset 0 2px 4px rgba(15, 23, 42, 0.1);
+    --shadow-equals: 0 4px 12px rgba(37, 99, 235, 0.3), 0 1px 0 rgba(255, 255, 255, 0.3) inset;
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: hsl(var(--color-app-bg));
+    color: hsl(var(--color-text-primary));
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Monospace numeric styling */
+.font-mono-calc {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-feature-settings: 'tnum' on, 'zero' on;
+}
+
+/* Custom subtle scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--color-border-strong));
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--color-text-muted));
+}
+
+/* Micro-interaction & Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
