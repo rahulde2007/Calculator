@@ -1,55 +1,62 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Calcx-Pro | Professional Calculator</title>
-    <meta name="description" content="A precision, production-grade professional engineering calculator application with standard and scientific modes, unit conversions, and persistent history." />
-    <meta name="theme-color" content="#090D16" />
-    <meta name="color-scheme" content="dark light" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Calcx-Pro" />
-    <meta name="application-name" content="Calcx-Pro" />
-    <meta name="format-detection" content="telephone=no" />
-    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <script>
-      (function() {
-        try {
-          var raw = localStorage.getItem('calcx-pro-state');
-          var pref = 'system';
-          if (raw) {
-            var parsed = JSON.parse(raw);
-            if (parsed && (parsed.themePreference === 'light' || parsed.themePreference === 'dark' || parsed.themePreference === 'system')) {
-              pref = parsed.themePreference;
-            } else if (parsed && parsed.preferences && (parsed.preferences.themePreference === 'light' || parsed.preferences.themePreference === 'dark' || parsed.preferences.themePreference === 'system')) {
-              pref = parsed.preferences.themePreference;
-            }
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calcx-Pro | Professional Calculator</title>
+  <meta name="description"
+    content="A precision, production-grade professional engineering calculator application with standard and scientific modes, unit conversions, and persistent history." />
+  <meta name="theme-color" content="#090D16" />
+  <meta name="color-scheme" content="dark light" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Calcx-Pro" />
+  <meta name="application-name" content="Calcx-Pro" />
+  <meta name="format-detection" content="telephone=no" />
+  <link rel="apple-touch-icon" href="/icons/icon-maskable-192.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <script>
+    (function () {
+      try {
+        var raw = localStorage.getItem('calcx-pro-state');
+        var pref = 'system';
+        if (raw) {
+          var parsed = JSON.parse(raw);
+          if (parsed && (parsed.themePreference === 'light' || parsed.themePreference === 'dark' || parsed.themePreference === 'system')) {
+            pref = parsed.themePreference;
+          } else if (parsed && parsed.preferences && (parsed.preferences.themePreference === 'light' || parsed.preferences.themePreference === 'dark' || parsed.preferences.themePreference === 'system')) {
+            pref = parsed.preferences.themePreference;
           }
-          var isDark = pref === 'dark' || (pref === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-          var root = document.documentElement;
-          root.setAttribute('data-theme', isDark ? 'dark' : 'light');
-          if (isDark) {
-            root.classList.add('dark');
-            root.classList.remove('light');
-          } else {
-            root.classList.add('light');
-            root.classList.remove('dark');
-          }
-          var meta = document.querySelector('meta[name="theme-color"]');
-          if (meta) {
-            meta.setAttribute('content', isDark ? '#090D16' : '#F8FAFC');
-          }
-        } catch (e) {}
-      })();
-    </script>
-  </head>
-  <body class="bg-calc-bg text-calc-text-primary antialiased min-h-screen transition-colors duration-200">
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+        }
+        var isDark = pref === 'dark' || (pref === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        var root = document.documentElement;
+        root.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        if (isDark) {
+          root.classList.add('dark');
+          root.classList.remove('light');
+        } else {
+          root.classList.add('light');
+          root.classList.remove('dark');
+        }
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) {
+          meta.setAttribute('content', isDark ? '#090D16' : '#F8FAFC');
+        }
+      } catch (e) { }
+    })();
+  </script>
+</head>
+
+<body class="bg-calc-bg text-calc-text-primary antialiased transition-colors duration-200">
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>

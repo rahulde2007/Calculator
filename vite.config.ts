@@ -13,8 +13,10 @@ export default defineConfig({
       includeAssets: [
         'favicon.svg',
         'icons/icon.svg',
+        'icons/icon-09.gif',
         'icons/icon-192.png',
         'icons/icon-512.png',
+        'icons/icon-maskable-192.png',
         'icons/icon-maskable-512.png',
       ],
       manifest: {
@@ -31,6 +33,7 @@ export default defineConfig({
         categories: ['productivity', 'utilities', 'education'],
         icons: [
           {
+            // Regular icon — used by browsers, desktop, and non-adaptive Android contexts
             src: '/icons/icon-192.png',
             sizes: '192x192',
             type: 'image/png',
@@ -41,6 +44,14 @@ export default defineConfig({
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any',
+          },
+          {
+            // Maskable icons — full-bleed background, logo in central 58% safe zone
+            // Android adaptive launcher uses these; logo is NEVER cropped by any mask shape
+            src: '/icons/icon-maskable-192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'maskable',
           },
           {
             src: '/icons/icon-maskable-512.png',
@@ -57,6 +68,14 @@ export default defineConfig({
         ],
       },
       workbox: {
+        // Bump this revision string whenever icons/assets change to force cache invalidation
+        // on already-installed PWAs. Change it to bust the service worker cache.
+        additionalManifestEntries: [
+          { url: '/icons/icon-maskable-192.png', revision: '2026-09-22-v2' },
+          { url: '/icons/icon-maskable-512.png', revision: '2026-09-22-v2' },
+          { url: '/icons/icon-192.png', revision: '2026-09-22-v2' },
+          { url: '/icons/icon-512.png', revision: '2026-09-22-v2' },
+        ],
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff,woff2}'],
         cleanupOutdatedCaches: true,
         runtimeCaching: [

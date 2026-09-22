@@ -198,9 +198,9 @@ const MAIN_KEYPAD_BUTTONS: readonly KeyConfig[] = [
  */
 export const Keypad: React.FC<KeypadProps> = (props) => {
   return (
-    <div role="group" aria-label="Calculator Keypad" className="flex flex-col gap-2.5 sm:gap-3 w-full">
+    <div role="group" aria-label="Calculator Keypad" className="flex flex-col gap-1.5 sm:gap-2 w-full flex-1 min-h-0">
       {/* Expression Utilities Row */}
-      <div className="grid grid-cols-4 gap-2 sm:gap-3 w-full">
+      <div className="grid grid-cols-4 gap-1.5 sm:gap-2 w-full shrink-0">
         {UTILITY_BUTTONS.map((btn) => (
           <CalculatorButton
             key={btn.id}
@@ -209,14 +209,14 @@ export const Keypad: React.FC<KeypadProps> = (props) => {
             ariaLabel={btn.ariaLabel}
             variant={btn.variant}
             spanCols={btn.spanCols}
-            className="h-11 sm:h-12 text-base font-mono"
+            className="h-9 sm:h-10 text-base font-mono"
             onClick={() => btn.action(props)}
           />
         ))}
       </div>
 
-      {/* Main Arithmetic Grid */}
-      <div className="grid grid-cols-4 gap-2 sm:gap-3 w-full">
+      {/* Main Arithmetic Grid — flex-1 so rows grow to fill */}
+      <div className="grid grid-cols-4 gap-1.5 sm:gap-2 w-full flex-1 min-h-0" style={{ gridAutoRows: '1fr' }}>
         {MAIN_KEYPAD_BUTTONS.map((btn) => (
           <CalculatorButton
             key={btn.id}
@@ -225,6 +225,7 @@ export const Keypad: React.FC<KeypadProps> = (props) => {
             ariaLabel={btn.ariaLabel}
             variant={btn.variant}
             spanCols={btn.spanCols}
+            className="h-full min-h-0"
             onClick={() => btn.action(props)}
           />
         ))}

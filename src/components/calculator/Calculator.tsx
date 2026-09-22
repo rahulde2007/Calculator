@@ -53,14 +53,14 @@ export const Calculator: React.FC<CalculatorProps> = ({
   return (
     <div
       className={`
-        relative w-full max-w-[360px] xs:max-w-[390px] sm:max-w-[440px]
-        mx-auto rounded-calc-shell bg-calc-surface/95
+        relative w-full flex-1 min-h-0
+        rounded-calc-shell bg-calc-surface/95
         border border-calc-border-subtle
         shadow-calc-shell backdrop-blur-2xl
         flex flex-col transition-all duration-200 ease-out
         ${isScientific
-          ? 'p-2.5 xs:p-3 sm:p-4.5 gap-2 xs:gap-2.5 sm:gap-3'
-          : 'p-4 sm:p-5 gap-3.5 sm:gap-4'}
+          ? 'p-2.5 xs:p-3 sm:p-4 gap-1.5 xs:gap-2 sm:gap-2.5'
+          : 'p-3 sm:p-4 gap-2.5 sm:gap-3'}
       `}
     >
       {/* Decorative top ambient rim highlight */}
@@ -143,6 +143,7 @@ export const Calculator: React.FC<CalculatorProps> = ({
           hasMemory={state.memory !== 0}
           memoryValue={state.memory}
           isCompact={isScientific}
+          livePreview={calc.livePreview}
         />
       </section>
 
@@ -168,8 +169,8 @@ export const Calculator: React.FC<CalculatorProps> = ({
         </section>
       )}
 
-      {/* Keypad Area */}
-      <section aria-label="Keypad Area" className="w-full">
+      {/* Keypad Area — flex-1 to fill remaining height */}
+      <section aria-label="Keypad Area" className="w-full flex-1 min-h-0 flex flex-col">
         {state.mode === 'scientific' ? (
           <ScientificKeypad
             onDigitClick={inputDigit}

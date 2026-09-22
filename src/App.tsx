@@ -34,40 +34,17 @@ export const App: React.FC = () => {
   }, [isHistoryOpen, isConverterOpen]);
 
   return (
-    <div className="min-h-screen bg-calc-bg text-calc-text-primary flex flex-col justify-between selection:bg-calc-accent/30 selection:text-white transition-colors duration-200">
+    <div className="h-screen overflow-hidden bg-calc-bg text-calc-text-primary flex flex-col selection:bg-calc-accent/30 selection:text-white transition-colors duration-200">
       {/* Top Application Bar */}
       <header className="border-b border-calc-border-subtle bg-calc-surface/40 backdrop-blur-xl sticky top-0 z-30 px-3 xs:px-4 sm:px-8 py-2.5 sm:py-3.5">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
           {/* Brand Logo */}
           <div className="flex items-center gap-3">
-            <div
-              className="h-9 w-9 rounded-calc-md bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-calc-button text-white shrink-0"
-              role="img"
-              aria-label="Calcx-Pro Calculator logo"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-5 w-5"
-                aria-hidden="true"
-              >
-                <rect width="16" height="20" x="4" y="2" rx="2" />
-                <line x1="8" x2="16" y1="6" y2="6" />
-                <line x1="16" x2="16" y1="14" y2="18" />
-                <path d="M16 10h.01" />
-                <path d="M12 10h.01" />
-                <path d="M8 10h.01" />
-                <path d="M12 14h.01" />
-                <path d="M8 14h.01" />
-                <path d="M12 18h.01" />
-                <path d="M8 18h.01" />
-              </svg>
-            </div>
+            <img
+              src="/icons/icon-09.gif"
+              alt="Calcx-Pro Logo"
+              className="h-9 sm:h-10 w-auto object-contain shrink-0 select-none dark:mix-blend-screen"
+            />
             <div>
               <h1 className="text-base sm:text-lg font-bold tracking-tight text-calc-text-primary">
                 Calcx<span className="text-calc-accent">Pro</span>
@@ -154,10 +131,10 @@ export const App: React.FC = () => {
       </header>
 
       {/* Main Interactive Stage */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-3 xs:px-4 sm:px-6 py-2.5 xs:py-3.5 sm:py-6 md:py-8 flex flex-col items-center justify-center">
-        <div className="w-full flex items-center justify-center">
+      <main className="flex-1 min-h-0 w-full overflow-hidden flex flex-col items-center justify-center px-3 xs:px-4 sm:px-6 py-2 xs:py-2.5 sm:py-4">
+        <div className="w-full max-w-[360px] xs:max-w-[390px] sm:max-w-[440px] flex-1 min-h-0 flex flex-col">
           {/* Main Stage: Connected Calculator Shell */}
-          <section aria-label="Interactive Calculator" className="w-full flex justify-center">
+          <section aria-label="Interactive Calculator" className="w-full flex-1 min-h-0 flex flex-col">
             <Calculator
               calculator={calculator}
               onOpenConverter={() => setIsConverterOpen((prev) => !prev)}
@@ -281,7 +258,7 @@ export const App: React.FC = () => {
       />
 
       {/* Application Footer */}
-      <footer className="border-t border-calc-border-subtle bg-calc-surface/30 py-3.5 px-4 sm:px-8 text-center text-xs text-calc-text-muted select-none">
+      <footer className="shrink-0 border-t border-calc-border-subtle bg-calc-surface/30 py-2 px-4 sm:px-8 text-center text-xs text-calc-text-muted select-none">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2 font-mono text-[11px]">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />

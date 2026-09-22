@@ -67,6 +67,8 @@ export const CalculatorButton: React.FC<CalculatorButtonProps> = ({
   const hasCustomText = Boolean(className && /\btext-/.test(className));
   const defaultTextClass = hasCustomText ? '' : 'text-lg sm:text-xl';
 
+  const isEquals = variant === 'equals';
+
   return (
     <button
       id={id}
@@ -75,6 +77,8 @@ export const CalculatorButton: React.FC<CalculatorButtonProps> = ({
       onClick={onClick}
       aria-label={computedAriaLabel}
       className={`
+        calc-neon-btn
+        ${isEquals ? 'calc-neon-btn-equals' : ''}
         group relative flex items-center justify-center
         ${defaultHeightClass} w-full rounded-calc-button
         font-sans font-medium ${defaultTextClass}
@@ -89,13 +93,18 @@ export const CalculatorButton: React.FC<CalculatorButtonProps> = ({
         ${className}
       `}
     >
+      {/* Continuous moving neon border tracer */}
+      {!disabled && (
+        <span className="calc-neon-border-tracer" aria-hidden="true" />
+      )}
+
       <span className="relative z-10 flex items-center justify-center gap-1">
         {label}
       </span>
 
       {/* Optional sub-label (e.g. keyboard shortcut or alternate operation) */}
       {subLabel && (
-        <span className="absolute bottom-1 right-2 text-[10px] font-mono text-calc-text-muted group-hover:text-calc-text-secondary transition-colors">
+        <span className="absolute bottom-1 right-2 z-10 text-[10px] font-mono text-calc-text-muted group-hover:text-calc-text-secondary transition-colors">
           {subLabel}
         </span>
       )}

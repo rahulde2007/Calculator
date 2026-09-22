@@ -370,13 +370,15 @@ export const ScientificKeypad: React.FC<ScientificKeypadProps> = (props) => {
     <div
       role="group"
       aria-label="Scientific Calculator Keypad"
-      className="flex flex-col gap-1 xs:gap-1.5 sm:gap-1.5 w-full"
+      className="flex flex-col gap-1 xs:gap-1.5 w-full flex-1 min-h-0"
     >
       {SCIENTIFIC_KEYPAD_ROWS.map((row, rowIndex) => (
-        <div key={`sci-row-${rowIndex}`} className="grid grid-cols-4 gap-1 xs:gap-1.5 sm:gap-1.5 w-full">
+        <div
+          key={`sci-row-${rowIndex}`}
+          className="grid grid-cols-4 gap-1 xs:gap-1.5 w-full flex-1 min-h-0"
+          style={{ gridAutoRows: '1fr' }}
+        >
           {row.map((btn) => {
-            const hasCustomText = Boolean(btn.className && /\btext-/.test(btn.className));
-            const defaultTextClass = hasCustomText ? '' : 'text-base sm:text-lg';
             return (
               <CalculatorButton
                 key={btn.id}
@@ -384,7 +386,7 @@ export const ScientificKeypad: React.FC<ScientificKeypadProps> = (props) => {
                 label={btn.label}
                 ariaLabel={btn.ariaLabel}
                 variant={btn.variant}
-                className={`h-9 xs:h-[38px] sm:h-10 md:h-11 ${defaultTextClass} ${btn.className ?? ''}`}
+                className={`h-full min-h-0 text-sm ${btn.className ?? ''}`}
                 onClick={() => btn.action(props)}
               />
             );

@@ -9,6 +9,8 @@ export interface DisplayProps {
   readonly hasMemory?: boolean | undefined;
   readonly memoryValue?: number | undefined;
   readonly isCompact?: boolean | undefined;
+  /** Live evaluated result shown while user types — null hides it */
+  readonly livePreview?: string | null | undefined;
 }
 
 /**
@@ -25,6 +27,7 @@ export const Display: React.FC<DisplayProps> = ({
   hasMemory = false,
   memoryValue,
   isCompact = false,
+  livePreview = null,
 }) => {
   const isMemoryActive = Boolean(hasMemory || (memoryValue !== undefined && memoryValue !== 0));
 
@@ -56,10 +59,10 @@ export const Display: React.FC<DisplayProps> = ({
       aria-label="Calculator Display"
       className={`
         group relative w-full rounded-calc-lg bg-calc-surface border border-calc-border-subtle
-        shadow-calc-display flex flex-col justify-between transition-all duration-150
+        shadow-calc-display flex flex-col justify-between transition-all duration-150 shrink-0
         ${isCompact
-          ? 'p-2.5 xs:p-3 sm:p-4 min-h-[86px] xs:min-h-[94px] sm:min-h-[110px]'
-          : 'p-4 sm:p-5 min-h-[130px] sm:min-h-[146px]'}
+          ? 'p-2 xs:p-2.5 sm:p-3'
+          : 'p-3 sm:p-4'}
       `}
     >
       {/* Top Status & Expression Row */}
@@ -95,7 +98,7 @@ export const Display: React.FC<DisplayProps> = ({
 
       {/* Main Result Display */}
       <div
-        className="relative flex items-baseline justify-end w-full overflow-hidden"
+        className="relative flex flex-col items-end w-full overflow-hidden"
         aria-live="polite"
         aria-atomic="true"
       >
@@ -109,6 +112,21 @@ export const Display: React.FC<DisplayProps> = ({
         >
           {displayText}
         </span>
+
+        {/* Live preview: shown while typing a valid evaluable expression */}
+        {livePreview && !isError && (
+          <span
+            className={`
+              font-mono-calc tracking-tight text-right text-calc-accent
+              overflow-x-auto whitespace-nowrap scrollbar-none
+              transition-all duration-200 ease-out opacity-80
+              ${isCompact ? 'text-base xs:text-lg' : 'text-lg sm:text-xl'}
+            `}
+            aria-label={`Live result: ${livePreview}`}
+          >
+            = {livePreview}
+          </span>
+        )}
       </div>
 
       {/* Subtle bottom glow reflection bar */}

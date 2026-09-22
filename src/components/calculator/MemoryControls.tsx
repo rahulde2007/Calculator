@@ -24,8 +24,8 @@ export const MemoryControls: React.FC<MemoryControlsProps> = ({
   className = '',
   isCompact = false,
 }) => {
-  const btnHeightClass = isCompact ? 'min-h-[34px] h-8.5 sm:h-9 text-xs' : 'min-h-[40px] h-10 sm:h-11 text-xs sm:text-sm';
-  const gapClass = isCompact ? 'gap-1 xs:gap-1.5 sm:gap-2' : 'gap-1.5 sm:gap-2';
+  const btnHeightClass = isCompact ? 'h-7 sm:h-8 text-xs' : 'h-8 sm:h-9 text-xs sm:text-sm';
+  const gapClass = isCompact ? 'gap-1 xs:gap-1.5' : 'gap-1.5 sm:gap-2';
 
   return (
     <div

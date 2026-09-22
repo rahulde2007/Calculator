@@ -3,45 +3,109 @@
 @tailwind utilities;
 
 @layer base {
+
+  /* ── Viewport lock: prevent any body/page scroll ── */
+  html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    height: 100dvh;
+    overflow: hidden;
+    overscroll-behavior: none;
+    touch-action: none;
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    height: 100dvh;
+    overflow: hidden;
+    overscroll-behavior: none;
+    position: fixed;
+    /* iOS Safari: prevents page bounce */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    box-sizing: border-box;
+    min-width: 320px;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: hsl(var(--color-app-bg));
+    color: hsl(var(--color-text-primary));
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  #root {
+    width: 100%;
+    height: 100%;
+    height: 100dvh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    overscroll-behavior: none;
+  }
+
   :root,
   [data-theme='dark'],
   .dark {
     color-scheme: dark;
 
     /* Semantic Color Tokens (Dark Mode Primary) */
-    --color-app-bg: 222 47% 7%;            /* #090D16 - Deep cosmic navy/black */
-    --color-surface: 217 33% 12%;           /* #131B2E - Calculator shell surface */
-    --color-surface-secondary: 215 28% 17%; /* #1E293B - Secondary panels / keypads */
-    --color-surface-elevated: 217 33% 22%;  /* #25334D - Display inset / elevated items */
+    --color-app-bg: 222 47% 7%;
+    /* #090D16 - Deep cosmic navy/black */
+    --color-surface: 217 33% 12%;
+    /* #131B2E - Calculator shell surface */
+    --color-surface-secondary: 215 28% 17%;
+    /* #1E293B - Secondary panels / keypads */
+    --color-surface-elevated: 217 33% 22%;
+    /* #25334D - Display inset / elevated items */
 
     /* Text Tokens */
-    --color-text-primary: 210 40% 98%;      /* #F8FAFC - High contrast readout */
-    --color-text-secondary: 215 20% 65%;    /* #94A3B8 - Subtitles / expressions */
-    --color-text-muted: 215 16% 47%;        /* #64748B - Disabled / inactive badges */
+    --color-text-primary: 210 40% 98%;
+    /* #F8FAFC - High contrast readout */
+    --color-text-secondary: 215 20% 65%;
+    /* #94A3B8 - Subtitles / expressions */
+    --color-text-muted: 215 16% 47%;
+    /* #64748B - Disabled / inactive badges */
 
     /* Border Tokens */
-    --color-border-subtle: 215 25% 20%;     /* #26334A - Subtle inner boundaries */
-    --color-border-strong: 215 25% 30%;     /* #384B6C - Distinct focus / card rims */
+    --color-border-subtle: 215 25% 20%;
+    /* #26334A - Subtle inner boundaries */
+    --color-border-strong: 215 25% 30%;
+    /* #384B6C - Distinct focus / card rims */
 
     /* Brand & Accent Tokens */
-    --color-accent: 217 91% 60%;            /* #3B82F6 - Primary electric blue */
-    --color-accent-hover: 217 91% 53%;      /* #2563EB - Blue hover */
+    --color-accent: 217 91% 60%;
+    /* #3B82F6 - Primary electric blue */
+    --color-accent-hover: 217 91% 53%;
+    /* #2563EB - Blue hover */
     --color-accent-subtle: 217 91% 60% / 0.15;
 
     /* Keypad Variant Tokens */
-    --color-key-number: 215 25% 18%;        /* Standard number keys */
+    --color-key-number: 215 25% 18%;
+    /* Standard number keys */
     --color-key-number-hover: 215 25% 24%;
-    --color-key-operator: 38 92% 50%;       /* Amber / orange operators */
+    --color-key-operator: 38 92% 50%;
+    /* Amber / orange operators */
     --color-key-operator-hover: 38 92% 44%;
-    --color-key-action: 217 33% 25%;        /* Clear / backspace / utility */
+    --color-key-action: 217 33% 25%;
+    /* Clear / backspace / utility */
     --color-key-action-hover: 217 33% 32%;
-    --color-key-equals: 217 91% 55%;        /* Primary blue equals */
+    --color-key-equals: 217 91% 55%;
+    /* Primary blue equals */
     --color-key-equals-hover: 217 91% 48%;
 
     /* Feedback Tokens */
-    --color-error: 350 89% 60%;             /* #F43F5E - Rose error */
-    --color-warning: 38 92% 50%;            /* #F59E0B - Amber warning */
-    --color-success: 152 76% 45%;           /* #10B981 - Emerald success */
+    --color-error: 350 89% 60%;
+    /* #F43F5E - Rose error */
+    --color-warning: 38 92% 50%;
+    /* #F59E0B - Amber warning */
+    --color-success: 152 76% 45%;
+    /* #10B981 - Emerald success */
 
     /* Elevation & Depth Shadows */
     --shadow-shell: 0 25px 60px -15px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.06);
@@ -55,27 +119,41 @@
   [data-theme='light'],
   .light {
     color-scheme: light;
-    --color-app-bg: 210 40% 98%;            /* #F8FAFC - Soft crisp canvas */
-    --color-surface: 0 0% 100%;             /* #FFFFFF - Shell card */
-    --color-surface-secondary: 214 32% 93%; /* #E2E8F0 - Inset panels */
-    --color-surface-elevated: 210 40% 96%;  /* #F1F5F9 - Display background */
+    --color-app-bg: 210 40% 98%;
+    /* #F8FAFC - Soft crisp canvas */
+    --color-surface: 0 0% 100%;
+    /* #FFFFFF - Shell card */
+    --color-surface-secondary: 214 32% 93%;
+    /* #E2E8F0 - Inset panels */
+    --color-surface-elevated: 210 40% 96%;
+    /* #F1F5F9 - Display background */
 
-    --color-text-primary: 222 47% 11%;      /* #0F172A - Deep charcoal */
-    --color-text-secondary: 215 25% 35%;    /* #334155 - Distinct subtitles */
-    --color-text-muted: 215 16% 50%;        /* #64748B - Badges / inactive */
+    --color-text-primary: 222 47% 11%;
+    /* #0F172A - Deep charcoal */
+    --color-text-secondary: 215 25% 35%;
+    /* #334155 - Distinct subtitles */
+    --color-text-muted: 215 16% 50%;
+    /* #64748B - Badges / inactive */
 
-    --color-border-subtle: 214 32% 88%;     /* #CBD5E1 */
-    --color-border-strong: 214 32% 76%;     /* #94A3B8 */
+    --color-border-subtle: 214 32% 88%;
+    /* #CBD5E1 */
+    --color-border-strong: 214 32% 76%;
+    /* #94A3B8 */
 
-    --color-accent: 217 91% 56%;            /* #2563EB - Vivid blue */
-    --color-accent-hover: 217 91% 48%;      /* #1D4ED8 */
+    --color-accent: 217 91% 56%;
+    /* #2563EB - Vivid blue */
+    --color-accent-hover: 217 91% 48%;
+    /* #1D4ED8 */
     --color-accent-subtle: 217 91% 56% / 0.12;
 
-    --color-key-number: 0 0% 100%;          /* White keys */
+    --color-key-number: 0 0% 100%;
+    /* White keys */
     --color-key-number-hover: 214 32% 95%;
-    --color-key-operator: 38 92% 48%;       /* Amber / orange operators */
+    --color-key-operator: 38 92% 48%;
+    /* Amber / orange operators */
     --color-key-operator-hover: 38 92% 42%;
-    --color-key-action: 214 32% 88%;        /* Slate utility keys */
+    --color-key-action: 214 32% 88%;
+    /* Slate utility keys */
     --color-key-action-hover: 214 32% 82%;
     --color-key-equals: 217 91% 52%;
     --color-key-equals-hover: 217 91% 45%;
@@ -92,17 +170,15 @@
     --shadow-equals: 0 4px 12px rgba(37, 99, 235, 0.3), 0 1px 0 rgba(255, 255, 255, 0.3) inset;
   }
 
-  body {
-    margin: 0;
-    min-width: 320px;
-    min-height: 100vh;
-    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: hsl(var(--color-app-bg));
-    color: hsl(var(--color-text-primary));
-    overflow-x: hidden;
-    -webkit-tap-highlight-color: transparent;
+  button,
+  input,
+  select,
+  a {
+    touch-action: manipulation;
+    /* re-enable tap/click despite html touch-action:none */
   }
 }
+
 
 /* Monospace numeric styling */
 .font-mono-calc {
@@ -131,6 +207,7 @@
 
 /* Micro-interaction & Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   ::before,
   ::after {
@@ -138,5 +215,194 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .calc-neon-btn,
+  .calc-neon-btn-equals {
+    animation: none !important;
+    box-shadow:
+      0 0 6px 0px rgba(56, 189, 248, 0.20),
+      inset 0 0 4px 0px rgba(56, 189, 248, 0.10) !important;
+  }
+
+  .calc-neon-border-tracer {
+    animation: none !important;
+    opacity: 0.3 !important;
+  }
+}
+
+/* ── Premium Animated Neon Glow & Moving Border Tracer ── */
+@property --neon-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes neon-ambient-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 7px 0px rgba(56, 189, 248, 0.22),
+      0 0 15px 1px rgba(14, 165, 233, 0.12),
+      inset 0 0 6px 0px rgba(56, 189, 248, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.10);
+  }
+  50% {
+    box-shadow:
+      0 0 12px 1px rgba(56, 189, 248, 0.42),
+      0 0 24px 3px rgba(14, 165, 233, 0.22),
+      inset 0 0 9px 1px rgba(56, 189, 248, 0.22),
+      inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  }
+}
+
+@keyframes neon-equals-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 10px 1px rgba(56, 189, 248, 0.45),
+      0 0 22px 2px rgba(14, 165, 233, 0.25),
+      inset 0 0 7px 1px rgba(56, 189, 248, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.30);
+  }
+  50% {
+    box-shadow:
+      0 0 16px 2px rgba(56, 189, 248, 0.68),
+      0 0 32px 4px rgba(14, 165, 233, 0.38),
+      inset 0 0 11px 2px rgba(56, 189, 248, 0.38),
+      inset 0 1px 0 rgba(255, 255, 255, 0.40);
+  }
+}
+
+@keyframes neon-border-spin {
+  from {
+    --neon-angle: 0deg;
+  }
+  to {
+    --neon-angle: 360deg;
+  }
+}
+
+.calc-neon-btn {
+  position: relative;
+  animation: neon-ambient-pulse 2.6s ease-in-out infinite;
+  will-change: box-shadow;
+  transition: box-shadow 0.2s ease, transform 0.15s ease, filter 0.2s ease;
+}
+
+.calc-neon-btn-equals {
+  animation: neon-equals-pulse 2.6s ease-in-out infinite;
+}
+
+/* Subtle Hover Enhancement */
+.calc-neon-btn:hover:not(:disabled) {
+  box-shadow:
+    0 0 14px 2px rgba(56, 189, 248, 0.55),
+    0 0 28px 4px rgba(14, 165, 233, 0.30),
+    inset 0 0 10px 1px rgba(56, 189, 248, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  animation-duration: 1.8s;
+}
+
+.calc-neon-btn-equals:hover:not(:disabled) {
+  box-shadow:
+    0 0 18px 3px rgba(56, 189, 248, 0.75),
+    0 0 36px 6px rgba(14, 165, 233, 0.45),
+    inset 0 0 12px 2px rgba(56, 189, 248, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  animation-duration: 1.8s;
+}
+
+/* Subtle Active/Press Enhancement */
+.calc-neon-btn:active:not(:disabled) {
+  box-shadow:
+    0 0 10px 1px rgba(56, 189, 248, 0.65),
+    0 0 20px 2px rgba(14, 165, 233, 0.35),
+    inset 0 2px 5px rgba(0, 0, 0, 0.4),
+    inset 0 0 8px 1px rgba(56, 189, 248, 0.35);
+}
+
+/* The Moving Neon Border Tracer Highlight */
+.calc-neon-border-tracer {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--neon-angle, 0deg),
+    transparent 0deg,
+    transparent 260deg,
+    rgba(14, 165, 233, 0.15) 280deg,
+    rgba(14, 165, 233, 0.50) 305deg,
+    rgba(56, 189, 248, 0.88) 330deg,
+    rgba(186, 230, 253, 0.98) 350deg,
+    rgba(255, 255, 255, 1) 354deg,
+    rgba(186, 230, 253, 0.98) 357deg,
+    rgba(56, 189, 248, 0.65) 359deg,
+    transparent 360deg
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  animation: neon-border-spin 2.6s linear infinite;
+  z-index: 2;
+  filter: drop-shadow(0 0 3px rgba(56, 189, 248, 0.85));
+  will-change: --neon-angle;
+  transition: opacity 0.2s ease, filter 0.2s ease;
+}
+
+.calc-neon-btn:hover:not(:disabled) .calc-neon-border-tracer {
+  filter: drop-shadow(0 0 5px rgba(56, 189, 248, 1)) drop-shadow(0 0 8px rgba(14, 165, 233, 0.5));
+  animation-duration: 1.8s;
+}
+
+/* Organic Phase Staggering across buttons */
+.calc-neon-btn:nth-child(2n) {
+  animation-delay: -0.65s;
+}
+.calc-neon-btn:nth-child(2n) .calc-neon-border-tracer {
+  animation-delay: -0.65s;
+}
+.calc-neon-btn:nth-child(3n) {
+  animation-delay: -1.30s;
+}
+.calc-neon-btn:nth-child(3n) .calc-neon-border-tracer {
+  animation-delay: -1.30s;
+}
+.calc-neon-btn:nth-child(4n) {
+  animation-delay: -1.95s;
+}
+.calc-neon-btn:nth-child(4n) .calc-neon-border-tracer {
+  animation-delay: -1.95s;
+}
+
+/* Disabled state */
+.calc-neon-btn:disabled,
+.calc-neon-btn[disabled] {
+  animation: none !important;
+  box-shadow: none !important;
+}
+.calc-neon-btn:disabled .calc-neon-border-tracer,
+.calc-neon-btn[disabled] .calc-neon-border-tracer {
+  display: none !important;
+}
+
+/* Light Mode Fine-Tuning */
+[data-theme='light'] .calc-neon-btn,
+.light .calc-neon-btn {
+  animation-name: neon-light-pulse;
+}
+
+@keyframes neon-light-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 5px 0px rgba(2, 132, 199, 0.20),
+      0 0 12px 1px rgba(14, 165, 233, 0.12),
+      inset 0 0 4px 0px rgba(2, 132, 199, 0.10);
+  }
+  50% {
+    box-shadow:
+      0 0 9px 1px rgba(2, 132, 199, 0.35),
+      0 0 18px 2px rgba(14, 165, 233, 0.20),
+      inset 0 0 6px 1px rgba(2, 132, 199, 0.18);
   }
 }

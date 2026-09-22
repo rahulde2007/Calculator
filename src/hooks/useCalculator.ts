@@ -1,4 +1,4 @@
-import { useReducer, useCallback, useEffect, useRef } from 'react';
+import { useReducer, useCallback, useEffect, useRef, useMemo } from 'react';
 import type {
   CalculatorState,
   CalculatorAction,
@@ -14,6 +14,8 @@ import {
   savePersistedState,
   serializePersistedState,
 } from '../store/persistence';
+import { calculate } from '../engine';
+import { formatDisplayNumber } from '../utils/formatNumber';
 
 export interface UseCalculatorReturn {
   readonly state: CalculatorState;
@@ -39,6 +41,8 @@ export interface UseCalculatorReturn {
   readonly memoryRecall: () => void;
   readonly memoryAdd: (val?: number) => void;
   readonly memorySubtract: (val?: number) => void;
+  /** Live result preview while the user is typing — null when expression is incomplete */
+  readonly livePreview: string | null;
 }
 
 /**
@@ -75,6 +79,27 @@ export function useCalculator(): UseCalculatorReturn {
       savePersistedState(payload);
     }
   }, [state.history, state.mode, state.angleUnit, state.themePreference]);
+
+  /**
+   * Live evaluation: evaluates the current expression on every keystroke while
+   * the user is in 'entering' status. Returns null for incomplete/invalid expressions
+   * so no error is ever shown prematurely.
+   */
+  const livePreview = useMemo<string | null>(() => {
+    if (state.status !== 'entering') return null;
+    const expr = state.expression.trim();
+    if (!expr) return null;
+
+    const result = calculate(expr, { angleUnit: state.angleUnit });
+    if (!result.success) return null;
+
+    const formatted = formatDisplayNumber(result.value);
+    // Don't show preview when it would duplicate what's already in the display
+    // e.g. user just typed a single number like '5'
+    if (formatted === state.displayValue) return null;
+
+    return formatted;
+  }, [state.expression, state.angleUnit, state.status, state.displayValue]);
 
   const inputDigit = useCallback((digit: string) => {
     dispatch({ type: 'INPUT_DIGIT', payload: digit });
@@ -192,5 +217,6 @@ export function useCalculator(): UseCalculatorReturn {
     memoryRecall,
     memoryAdd,
     memorySubtract,
+    livePreview,
   };
 }
