@@ -279,27 +279,79 @@ export function evaluateRPN(
  * @param options Calculation options specifying angleUnit ('deg' | 'rad' | 'grad')
  * @returns CalculationResult
  */
+const CALCULATION_CACHE_MAX_SIZE = 128;
+const calculationCache = new Map<string, CalculationResult>();
+
+/**
+ * Public, framework-independent Calculation Engine API.
+ * Evaluates mathematical string expressions end-to-end with bounded LRU memoization.
+ *
+ * Example:
+ * ```ts
+ * calculate("2 + 3 * 4") // { success: true, value: 14 }
+ * calculate("sin(90)", { angleUnit: 'deg' }) // { success: true, value: 1 }
+ * calculate("10 / 0") // { success: false, error: { code: 'DivisionByZero', message: '...' } }
+ * ```
+ *
+ * @param expression The mathematical expression string to evaluate
+ * @param options Calculation options specifying angleUnit ('deg' | 'rad' | 'grad')
+ * @returns CalculationResult
+ */
 export function calculate(
   expression: string,
   options?: CalculationOptions | AngleUnit
 ): CalculationResult {
+  const angleUnit: AngleUnit =
+    typeof options === 'string'
+      ? options
+      : options?.angleUnit ?? 'deg';
+
+  const cacheKey = `${expression}__${angleUnit}`;
+  const cached = calculationCache.get(cacheKey);
+  if (cached) {
+    // LRU refresh
+    calculationCache.delete(cacheKey);
+    calculationCache.set(cacheKey, cached);
+    return cached;
+  }
+
   const validation = validateExpression(expression);
   if (!validation.valid && validation.error) {
-    return {
+    const errorResult: CalculationResult = {
       success: false,
       error: validation.error,
     };
+    if (calculationCache.size >= CALCULATION_CACHE_MAX_SIZE) {
+      const oldestKey = calculationCache.keys().next().value;
+      if (oldestKey !== undefined) calculationCache.delete(oldestKey);
+    }
+    calculationCache.set(cacheKey, errorResult);
+    return errorResult;
   }
 
   const parsed = parseExpressionToRPN(expression);
   if (!parsed.success) {
-    return {
+    const errorResult: CalculationResult = {
       success: false,
       error: parsed.error,
     };
+    if (calculationCache.size >= CALCULATION_CACHE_MAX_SIZE) {
+      const oldestKey = calculationCache.keys().next().value;
+      if (oldestKey !== undefined) calculationCache.delete(oldestKey);
+    }
+    calculationCache.set(cacheKey, errorResult);
+    return errorResult;
   }
 
-  return evaluateRPN(parsed.rpn, options);
+  const result = evaluateRPN(parsed.rpn, options);
+
+  if (calculationCache.size >= CALCULATION_CACHE_MAX_SIZE) {
+    const oldestKey = calculationCache.keys().next().value;
+    if (oldestKey !== undefined) calculationCache.delete(oldestKey);
+  }
+  calculationCache.set(cacheKey, result);
+
+  return result;
 }
 
 // Backward-compatible alias for Step 1

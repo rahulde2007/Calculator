@@ -22,8 +22,9 @@ const UNITS: readonly UnitOption[] = [
 /**
  * Premium, accessible segmented angle unit selector for Scientific Mode.
  * Controls trigonometric evaluation mode across DEG, RAD, and GRAD.
+ * Memoized to prevent re-renders when numbers are typed.
  */
-export const AngleUnitSelector: React.FC<AngleUnitSelectorProps> = ({
+export const AngleUnitSelector: React.FC<AngleUnitSelectorProps> = React.memo(({
   currentUnit,
   onSelectUnit,
   className = '',
@@ -34,8 +35,8 @@ export const AngleUnitSelector: React.FC<AngleUnitSelectorProps> = ({
       aria-label="Angle measurement unit"
       className={`
         flex items-center justify-between p-0.5 sm:p-1 rounded-calc-md
-        bg-calc-surface-secondary/80 border border-calc-border-subtle/80
-        shadow-sm backdrop-blur-md w-full
+        bg-calc-surface-secondary border border-calc-border-subtle
+        shadow-sm w-full
         ${className}
       `}
     >
@@ -51,7 +52,7 @@ export const AngleUnitSelector: React.FC<AngleUnitSelectorProps> = ({
             onClick={() => onSelectUnit(unit.id)}
             className={`
               flex-1 min-h-[32px] sm:min-h-[36px] flex items-center justify-center py-1 sm:py-1.5 px-2 text-[11px] sm:text-xs font-mono font-semibold tracking-wider rounded
-              select-none transition-all duration-150 ease-out text-center
+              select-none transition-colors duration-100 ease-out text-center
               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-calc-accent focus-visible:ring-offset-1 focus-visible:ring-offset-calc-surface
               active:scale-[0.98]
               ${isActive
@@ -65,4 +66,6 @@ export const AngleUnitSelector: React.FC<AngleUnitSelectorProps> = ({
       })}
     </div>
   );
-};
+});
+
+AngleUnitSelector.displayName = 'AngleUnitSelector';

@@ -14,8 +14,9 @@ export interface MemoryControlsProps {
 /**
  * Compact memory control bar (MC, MR, M+, M−).
  * Integrates seamlessly above keypads in both Standard and Scientific modes.
+ * Memoized to prevent re-rendering when typing.
  */
-export const MemoryControls: React.FC<MemoryControlsProps> = ({
+export const MemoryControls: React.FC<MemoryControlsProps> = React.memo(({
   hasMemory,
   onMemoryClear,
   onMemoryRecall,
@@ -71,4 +72,6 @@ export const MemoryControls: React.FC<MemoryControlsProps> = ({
       />
     </div>
   );
-};
+});
+
+MemoryControls.displayName = 'MemoryControls';

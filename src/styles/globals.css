@@ -177,6 +177,11 @@
     touch-action: manipulation;
     /* re-enable tap/click despite html touch-action:none */
   }
+
+  .smooth-scroll {
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+  }
 }
 
 
@@ -283,13 +288,22 @@
 
 .calc-neon-btn {
   position: relative;
-  animation: neon-ambient-pulse 2.6s ease-in-out infinite;
-  will-change: box-shadow;
-  transition: box-shadow 0.2s ease, transform 0.15s ease, filter 0.2s ease;
+  box-shadow:
+    0 0 7px 0px rgba(56, 189, 248, 0.22),
+    0 0 15px 1px rgba(14, 165, 233, 0.12),
+    inset 0 0 6px 0px rgba(56, 189, 248, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .calc-neon-btn-equals {
-  animation: neon-equals-pulse 2.6s ease-in-out infinite;
+  box-shadow:
+    0 0 12px 1px rgba(56, 189, 248, 0.50),
+    0 0 24px 2px rgba(14, 165, 233, 0.28),
+    inset 0 0 8px 1px rgba(56, 189, 248, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
 /* Subtle Hover Enhancement */
@@ -299,7 +313,6 @@
     0 0 28px 4px rgba(14, 165, 233, 0.30),
     inset 0 0 10px 1px rgba(56, 189, 248, 0.28),
     inset 0 1px 0 rgba(255, 255, 255, 0.25);
-  animation-duration: 1.8s;
 }
 
 .calc-neon-btn-equals:hover:not(:disabled) {
@@ -308,7 +321,6 @@
     0 0 36px 6px rgba(14, 165, 233, 0.45),
     inset 0 0 12px 2px rgba(56, 189, 248, 0.45),
     inset 0 1px 0 rgba(255, 255, 255, 0.45);
-  animation-duration: 1.8s;
 }
 
 /* Subtle Active/Press Enhancement */
@@ -320,7 +332,7 @@
     inset 0 0 8px 1px rgba(56, 189, 248, 0.35);
 }
 
-/* The Moving Neon Border Tracer Highlight */
+/* The Moving Neon Border Tracer Highlight - Active/Hover/Hero animated */
 .calc-neon-border-tracer {
   position: absolute;
   inset: -1px;
@@ -343,36 +355,22 @@
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
-  animation: neon-border-spin 2.6s linear infinite;
   z-index: 2;
-  filter: drop-shadow(0 0 3px rgba(56, 189, 248, 0.85));
-  will-change: --neon-angle;
+  opacity: 0;
   transition: opacity 0.2s ease, filter 0.2s ease;
+}
+
+/* Activate smooth tracer rotation on hover or focus */
+.calc-neon-btn:hover:not(:disabled) .calc-neon-border-tracer,
+.calc-neon-btn:focus-visible .calc-neon-border-tracer {
+  opacity: 1;
+  animation: neon-border-spin 2.6s linear infinite;
+  filter: drop-shadow(0 0 3px rgba(56, 189, 248, 0.85));
 }
 
 .calc-neon-btn:hover:not(:disabled) .calc-neon-border-tracer {
   filter: drop-shadow(0 0 5px rgba(56, 189, 248, 1)) drop-shadow(0 0 8px rgba(14, 165, 233, 0.5));
   animation-duration: 1.8s;
-}
-
-/* Organic Phase Staggering across buttons */
-.calc-neon-btn:nth-child(2n) {
-  animation-delay: -0.65s;
-}
-.calc-neon-btn:nth-child(2n) .calc-neon-border-tracer {
-  animation-delay: -0.65s;
-}
-.calc-neon-btn:nth-child(3n) {
-  animation-delay: -1.30s;
-}
-.calc-neon-btn:nth-child(3n) .calc-neon-border-tracer {
-  animation-delay: -1.30s;
-}
-.calc-neon-btn:nth-child(4n) {
-  animation-delay: -1.95s;
-}
-.calc-neon-btn:nth-child(4n) .calc-neon-border-tracer {
-  animation-delay: -1.95s;
 }
 
 /* Disabled state */
@@ -389,20 +387,16 @@
 /* Light Mode Fine-Tuning */
 [data-theme='light'] .calc-neon-btn,
 .light .calc-neon-btn {
-  animation-name: neon-light-pulse;
+  box-shadow:
+    0 0 5px 0px rgba(2, 132, 199, 0.20),
+    0 0 12px 1px rgba(14, 165, 233, 0.12),
+    inset 0 0 4px 0px rgba(2, 132, 199, 0.10);
 }
 
-@keyframes neon-light-pulse {
-  0%, 100% {
-    box-shadow:
-      0 0 5px 0px rgba(2, 132, 199, 0.20),
-      0 0 12px 1px rgba(14, 165, 233, 0.12),
-      inset 0 0 4px 0px rgba(2, 132, 199, 0.10);
-  }
-  50% {
-    box-shadow:
-      0 0 9px 1px rgba(2, 132, 199, 0.35),
-      0 0 18px 2px rgba(14, 165, 233, 0.20),
-      inset 0 0 6px 1px rgba(2, 132, 199, 0.18);
-  }
+[data-theme='light'] .calc-neon-btn:hover:not(:disabled),
+.light .calc-neon-btn:hover:not(:disabled) {
+  box-shadow:
+    0 0 9px 1px rgba(2, 132, 199, 0.35),
+    0 0 18px 2px rgba(14, 165, 233, 0.20),
+    inset 0 0 6px 1px rgba(2, 132, 199, 0.18);
 }

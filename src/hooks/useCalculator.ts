@@ -48,7 +48,7 @@ export interface UseCalculatorReturn {
 /**
  * Custom React hook that encapsulates calculator state, actions, and engine integration.
  * Purely decouples UI components from the state machine and calculation engine.
- * Hydrates state synchronously on startup and keeps localStorage synchronized.
+ * Hydrates state synchronously on startup and defers localStorage synchronization to keep UI at 60fps.
  */
 export function useCalculator(): UseCalculatorReturn {
   const [state, dispatch] = useReducer(
@@ -57,15 +57,16 @@ export function useCalculator(): UseCalculatorReturn {
     (initial) => getHydratedInitialState(initial)
   );
 
-  const lastSerializedRef = useRef<string>(
-    serializePersistedState({
-      history: state.history,
-      mode: state.mode,
-      angleUnit: state.angleUnit,
-      themePreference: state.themePreference,
-    })
-  );
+  const lastSerializedRef = useRef<string | null>(null);
+  const pendingSaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingPayloadRef = useRef<{
+    history: readonly CalculationHistoryItem[];
+    mode: CalculatorMode;
+    angleUnit: AngleUnit;
+    themePreference?: ThemePreference | undefined;
+  } | null>(null);
 
+  // Defer localStorage writes so interaction latency is 0ms
   useEffect(() => {
     const payload = {
       history: state.history,
@@ -73,12 +74,38 @@ export function useCalculator(): UseCalculatorReturn {
       angleUnit: state.angleUnit,
       themePreference: state.themePreference,
     };
+    pendingPayloadRef.current = payload;
+
     const serialized = serializePersistedState(payload);
     if (serialized !== lastSerializedRef.current) {
       lastSerializedRef.current = serialized;
-      savePersistedState(payload);
+
+      if (pendingSaveTimeoutRef.current) {
+        clearTimeout(pendingSaveTimeoutRef.current);
+      }
+
+      pendingSaveTimeoutRef.current = setTimeout(() => {
+        savePersistedState(payload, undefined, serialized);
+        pendingSaveTimeoutRef.current = null;
+      }, 80);
     }
   }, [state.history, state.mode, state.angleUnit, state.themePreference]);
+
+  // Flush any pending save on page unload
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (pendingPayloadRef.current && lastSerializedRef.current) {
+        savePersistedState(pendingPayloadRef.current, undefined, lastSerializedRef.current);
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      if (pendingSaveTimeoutRef.current) {
+        clearTimeout(pendingSaveTimeoutRef.current);
+      }
+    };
+  }, []);
 
   /**
    * Live evaluation: evaluates the current expression on every keystroke while
@@ -95,7 +122,6 @@ export function useCalculator(): UseCalculatorReturn {
 
     const formatted = formatDisplayNumber(result.value);
     // Don't show preview when it would duplicate what's already in the display
-    // e.g. user just typed a single number like '5'
     if (formatted === state.displayValue) return null;
 
     return formatted;
@@ -193,7 +219,7 @@ export function useCalculator(): UseCalculatorReturn {
     }
   }, []);
 
-  return {
+  return useMemo(() => ({
     state,
     dispatch,
     inputDigit,
@@ -218,5 +244,30 @@ export function useCalculator(): UseCalculatorReturn {
     memoryAdd,
     memorySubtract,
     livePreview,
-  };
+  }), [
+    state,
+    dispatch,
+    inputDigit,
+    inputOperator,
+    inputDecimal,
+    inputParenthesis,
+    inputFunction,
+    inputConstant,
+    inputPostfix,
+    clearAll,
+    clearEntry,
+    deleteBackspace,
+    calculateAction,
+    loadHistoryItem,
+    clearHistory,
+    deleteHistoryItem,
+    setMode,
+    setAngleUnit,
+    setThemePreference,
+    memoryClear,
+    memoryRecall,
+    memoryAdd,
+    memorySubtract,
+    livePreview,
+  ]);
 }

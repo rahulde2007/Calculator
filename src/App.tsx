@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Calculator } from './components/calculator/Calculator';
 import { HistoryPanel } from './components/history/HistoryPanel';
 import { UnitConverter } from './components/converter/UnitConverter';
@@ -7,11 +7,13 @@ import { IconButton } from './components/common/IconButton';
 import { SettingsModal } from './components/settings/SettingsModal';
 import { useCalculator } from './hooks/useCalculator';
 import { useTheme } from './hooks/useTheme';
+import type { CalculationHistoryItem } from './types/calculator';
 
 /**
  * Calcx-Pro Root Shell.
  * Integrates the fully interactive calculation engine with the UI shell,
  * real-time calculation history, physical keyboard support, and theme/settings management.
+ * Optimized for 60fps interaction and zero layout shifts.
  */
 export const App: React.FC = () => {
   const calculator = useCalculator();
@@ -22,19 +24,69 @@ export const App: React.FC = () => {
   const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);
   const [isConverterOpen, setIsConverterOpen] = useState<boolean>(false);
 
+  const isAnyModalOpen = isKeyboardHelpOpen || isSettingsOpen || isHistoryOpen || isConverterOpen;
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         if (isHistoryOpen) setIsHistoryOpen(false);
         if (isConverterOpen) setIsConverterOpen(false);
+        if (isKeyboardHelpOpen) setIsKeyboardHelpOpen(false);
+        if (isSettingsOpen) setIsSettingsOpen(false);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isHistoryOpen, isConverterOpen]);
+  }, [isHistoryOpen, isConverterOpen, isKeyboardHelpOpen, isSettingsOpen]);
+
+  const handleToggleConverter = useCallback(() => {
+    setIsConverterOpen((prev) => !prev);
+  }, []);
+
+  const handleCloseConverter = useCallback(() => {
+    setIsConverterOpen(false);
+  }, []);
+
+  const handleToggleHistory = useCallback(() => {
+    setIsHistoryOpen((prev) => !prev);
+  }, []);
+
+  const handleCloseHistory = useCallback(() => {
+    setIsHistoryOpen(false);
+  }, []);
+
+  const handleOpenShortcuts = useCallback(() => {
+    setIsKeyboardHelpOpen(true);
+  }, []);
+
+  const handleCloseShortcuts = useCallback(() => {
+    setIsKeyboardHelpOpen(false);
+  }, []);
+
+  const handleOpenSettings = useCallback(() => {
+    setIsSettingsOpen(true);
+  }, []);
+
+  const handleCloseSettings = useCallback(() => {
+    setIsSettingsOpen(false);
+  }, []);
+
+  const handleSelectHistoryItem = useCallback((item: CalculationHistoryItem) => {
+    calculator.loadHistoryItem(item);
+  }, [calculator.loadHistoryItem]);
+
+  const handleClearHistory = useCallback(() => {
+    calculator.clearHistory();
+  }, [calculator.clearHistory]);
+
+  const handleDeleteHistoryItem = useCallback((id: string) => {
+    calculator.deleteHistoryItem(id);
+  }, [calculator.deleteHistoryItem]);
+
+  const historyLength = calculator.state.history.length;
 
   return (
-    <div className="h-screen overflow-hidden bg-calc-bg text-calc-text-primary flex flex-col selection:bg-calc-accent/30 selection:text-white transition-colors duration-200">
+    <div className="h-screen overflow-hidden bg-calc-bg text-calc-text-primary flex flex-col selection:bg-calc-accent/30 selection:text-white">
       {/* Top Application Bar */}
       <header className="border-b border-calc-border-subtle bg-calc-surface/40 backdrop-blur-xl sticky top-0 z-30 px-3 xs:px-4 sm:px-8 py-2.5 sm:py-3.5">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
@@ -57,14 +109,14 @@ export const App: React.FC = () => {
           <div className="flex items-center gap-2 sm:gap-3">
             <IconButton
               ariaLabel={
-                calculator.state.history.length > 0
-                  ? `Calculation History (${calculator.state.history.length} item${calculator.state.history.length === 1 ? '' : 's'})`
+                historyLength > 0
+                  ? `Calculation History (${historyLength} item${historyLength === 1 ? '' : 's'})`
                   : 'Calculation History'
               }
               title="Calculation History"
               variant={isHistoryOpen ? 'active' : 'default'}
               size="sm"
-              onClick={() => setIsHistoryOpen((prev) => !prev)}
+              onClick={handleToggleHistory}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -79,9 +131,9 @@ export const App: React.FC = () => {
                 <polyline points="12 6 12 12 16 14" />
               </svg>
               <span className="text-xs font-medium px-1 hidden sm:inline">History</span>
-              {calculator.state.history.length > 0 && (
+              {historyLength > 0 && (
                 <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-calc-accent/20 text-calc-accent font-bold ml-0.5">
-                  {calculator.state.history.length}
+                  {historyLength}
                 </span>
               )}
             </IconButton>
@@ -91,7 +143,7 @@ export const App: React.FC = () => {
               title="Keyboard Shortcuts"
               variant="default"
               size="sm"
-              onClick={() => setIsKeyboardHelpOpen(true)}
+              onClick={handleOpenShortcuts}
             >
               <span className="text-xs font-medium px-1 hidden sm:inline">Shortcuts</span>
               <span className="text-xs font-medium px-1 sm:hidden">⌨</span>
@@ -102,7 +154,7 @@ export const App: React.FC = () => {
               title="Calculator Settings"
               variant="default"
               size="sm"
-              onClick={() => setIsSettingsOpen(true)}
+              onClick={handleOpenSettings}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -137,8 +189,9 @@ export const App: React.FC = () => {
           <section aria-label="Interactive Calculator" className="w-full flex-1 min-h-0 flex flex-col">
             <Calculator
               calculator={calculator}
-              onOpenConverter={() => setIsConverterOpen((prev) => !prev)}
+              onOpenConverter={handleToggleConverter}
               isConverterOpen={isConverterOpen}
+              keyboardEnabled={!isAnyModalOpen}
             />
           </section>
         </div>
@@ -152,7 +205,7 @@ export const App: React.FC = () => {
           aria-label="Calculation History"
           className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm transition-opacity duration-200"
           onClick={(e) => {
-            if (e.target === e.currentTarget) setIsHistoryOpen(false);
+            if (e.target === e.currentTarget) handleCloseHistory();
           }}
         >
           <div
@@ -163,19 +216,17 @@ export const App: React.FC = () => {
           >
             <HistoryPanel
               items={calculator.state.history}
-              onSelectItem={(item) => {
-                calculator.loadHistoryItem(item);
-              }}
-              onClearHistory={calculator.clearHistory}
-              onDeleteItem={calculator.deleteHistoryItem}
-              onClose={() => setIsHistoryOpen(false)}
+              onSelectItem={handleSelectHistoryItem}
+              onClearHistory={handleClearHistory}
+              onDeleteItem={handleDeleteHistoryItem}
+              onClose={handleCloseHistory}
               className="h-full border-0 rounded-none shadow-none p-0 bg-transparent"
             />
           </div>
         </div>
       )}
 
-      {/* Unit Converter Overlay (Centered, matching Calculator card footprint and proportions) */}
+      {/* Unit Converter Overlay */}
       {isConverterOpen && (
         <div
           role="dialog"
@@ -183,19 +234,18 @@ export const App: React.FC = () => {
           aria-label="Unit Converter"
           className="fixed inset-0 z-50 flex items-center justify-center p-3 xs:p-4 sm:p-6 bg-black/60 backdrop-blur-sm transition-opacity duration-200 overflow-y-auto"
           onClick={(e) => {
-            if (e.target === e.currentTarget) setIsConverterOpen(false);
+            if (e.target === e.currentTarget) handleCloseConverter();
           }}
         >
           <div
             className="
               relative w-full max-w-[360px] xs:max-w-[390px] sm:max-w-[440px]
-              rounded-calc-shell bg-calc-surface/95 border border-calc-border-subtle
-              shadow-calc-shell backdrop-blur-2xl p-3.5 xs:p-4 sm:p-5 flex flex-col my-auto
-              transition-all duration-200
+              rounded-calc-shell bg-calc-surface border border-calc-border-subtle
+              shadow-calc-shell p-3.5 xs:p-4 sm:p-5 flex flex-col my-auto
             "
           >
             <UnitConverter
-              onClose={() => setIsConverterOpen(false)}
+              onClose={handleCloseConverter}
               className="border-0 rounded-none shadow-none p-0 bg-transparent"
             />
           </div>
@@ -205,7 +255,7 @@ export const App: React.FC = () => {
       {/* Keyboard Shortcuts Modal */}
       <Modal
         isOpen={isKeyboardHelpOpen}
-        onClose={() => setIsKeyboardHelpOpen(false)}
+        onClose={handleCloseShortcuts}
         title="Physical Keyboard Shortcuts"
       >
         <div className="space-y-3 text-xs text-calc-text-secondary">
@@ -248,7 +298,7 @@ export const App: React.FC = () => {
       {/* Calculator Settings Modal */}
       <SettingsModal
         isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
+        onClose={handleCloseSettings}
         themePreference={calculator.state.themePreference}
         onThemeChange={calculator.setThemePreference}
         mode={calculator.state.mode}

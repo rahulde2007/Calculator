@@ -38,7 +38,7 @@ const ANGLE_OPTIONS: readonly { readonly value: AngleUnit; readonly label: strin
  * Accessible, compact Settings dialog controlling appearance and calculation parameters.
  * Directly mutates canonical calculator preferences with zero parallel state.
  */
-export const SettingsModal: React.FC<SettingsModalProps> = ({
+export const SettingsModal: React.FC<SettingsModalProps> = React.memo(({
   isOpen,
   onClose,
   themePreference,
@@ -48,6 +48,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   angleUnit,
   onAngleUnitChange,
 }) => {
+  if (!isOpen) return null;
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Calculator Settings">
       <div className="space-y-6 pt-1">
@@ -198,4 +200,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       </div>
     </Modal>
   );
-};
+});
+
+SettingsModal.displayName = 'SettingsModal';

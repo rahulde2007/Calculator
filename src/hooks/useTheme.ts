@@ -14,17 +14,20 @@ export interface UseThemeResult {
 /**
  * Hook to synchronize the application theme with the user's preference
  * and dynamically react to system OS color scheme changes when set to 'system'.
+ * Avoids unnecessary state updates if resolved theme is identical.
  */
 export function useTheme(preference: ThemePreference): UseThemeResult {
-  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() =>
-    resolveTheme(preference)
-  );
+  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() => {
+    const initial = resolveTheme(preference);
+    applyThemeToDocument(initial);
+    return initial;
+  });
 
   // Update theme when preference changes
   useEffect(() => {
     const currentResolved = resolveTheme(preference);
-    setResolvedTheme(currentResolved);
     applyThemeToDocument(currentResolved);
+    setResolvedTheme((prev) => (prev === currentResolved ? prev : currentResolved));
 
     // Only listen to OS changes when in 'system' mode
     if (preference !== 'system') {
@@ -33,8 +36,8 @@ export function useTheme(preference: ThemePreference): UseThemeResult {
 
     const unwatch = watchSystemTheme((isDark) => {
       const nextResolved = isDark ? 'dark' : 'light';
-      setResolvedTheme(nextResolved);
       applyThemeToDocument(nextResolved);
+      setResolvedTheme((prev) => (prev === nextResolved ? prev : nextResolved));
     });
 
     return unwatch;

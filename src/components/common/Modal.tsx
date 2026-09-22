@@ -10,15 +10,16 @@ export interface ModalProps {
 /**
  * Accessible Modal dialog component adhering to Calcx-Pro design tokens.
  */
-export const Modal: React.FC<ModalProps> = ({
+export const Modal: React.FC<ModalProps> = React.memo(({
   isOpen,
   onClose,
   title,
   children,
 }) => {
   useEffect(() => {
+    if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
+      if (e.key === 'Escape') {
         onClose();
       }
     };
@@ -56,4 +57,6 @@ export const Modal: React.FC<ModalProps> = ({
       </div>
     </div>
   );
-};
+});
+
+Modal.displayName = 'Modal';

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { CalculationHistoryItem } from '../../types/calculator';
 import { copyToClipboard } from '../../utils/clipboard';
 
@@ -12,13 +12,23 @@ export interface HistoryItemProps {
  * Renders an individual calculation entry matching Calcx-Pro design tokens.
  * Features quick reuse, copy result, copy expression, individual deletion,
  * accessible feedback, and WCAG AA minimum 44px touch targets.
+ * Memoized to prevent re-rendering unaffected items when history changes.
  */
-export const HistoryItem: React.FC<HistoryItemProps> = ({
+export const HistoryItem: React.FC<HistoryItemProps> = React.memo(({
   item,
   onSelect,
   onDelete,
 }) => {
   const [copiedTarget, setCopiedTarget] = useState<'result' | 'expression' | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleCopy = async (target: 'result' | 'expression', e: React.MouseEvent) => {
     e.stopPropagation();
@@ -26,8 +36,12 @@ export const HistoryItem: React.FC<HistoryItemProps> = ({
     const success = await copyToClipboard(textToCopy);
     if (success) {
       setCopiedTarget(target);
-      setTimeout(() => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      timeoutRef.current = setTimeout(() => {
         setCopiedTarget((current) => (current === target ? null : current));
+        timeoutRef.current = null;
       }, 1500);
     }
   };
@@ -43,7 +57,7 @@ export const HistoryItem: React.FC<HistoryItemProps> = ({
       aria-label={`Calculation: ${item.expression} = ${item.result}`}
       className="
         group relative rounded-calc-md bg-calc-surface-secondary hover:bg-calc-surface-elevated
-        border border-calc-border-subtle p-3 transition-all duration-150 shadow-sm
+        border border-calc-border-subtle p-3 transition-colors duration-100 shadow-sm
         flex flex-col gap-2
       "
     >
@@ -168,4 +182,6 @@ export const HistoryItem: React.FC<HistoryItemProps> = ({
       </div>
     </div>
   );
-};
+});
+
+HistoryItem.displayName = 'HistoryItem';

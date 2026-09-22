@@ -262,6 +262,7 @@ export function loadPersistedState(storage?: SafeStorage | null): Partial<Persis
 
 /**
  * Serializes and saves state to storage.
+ * Optionally accepts pre-serialized JSON to avoid duplicate JSON.stringify runs.
  */
 export function savePersistedState(
   data: {
@@ -270,9 +271,10 @@ export function savePersistedState(
     angleUnit: AngleUnit;
     themePreference?: ThemePreference | undefined;
   },
-  storage?: SafeStorage | null
+  storage?: SafeStorage | null,
+  preSerialized?: string
 ): boolean {
-  const serialized = serializePersistedState(data);
+  const serialized = preSerialized ?? serializePersistedState(data);
   return safeStorageSet(STORAGE_KEY, serialized, storage);
 }
 

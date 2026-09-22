@@ -21,7 +21,7 @@ export interface UnitConverterProps {
 
 const currencyProvider = new LiveCurrencyProvider();
 
-export const UnitConverter: React.FC<UnitConverterProps> = ({
+export const UnitConverter: React.FC<UnitConverterProps> = React.memo(({
   onClose,
   className = '',
 }) => {
@@ -339,4 +339,6 @@ export const UnitConverter: React.FC<UnitConverterProps> = ({
       </div>
     </aside>
   );
-};
+});
+
+UnitConverter.displayName = 'UnitConverter';

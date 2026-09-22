@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { OperatorSymbol, ButtonVariant } from '../../types/calculator';
 import { CalculatorButton } from './CalculatorButton';
 
@@ -21,7 +21,6 @@ interface ScientificKeyConfig {
   readonly ariaLabel: string;
   readonly variant: ButtonVariant;
   readonly className?: string | undefined;
-  readonly action: (handlers: ScientificKeypadProps) => void;
 }
 
 /**
@@ -35,14 +34,12 @@ const SCIENTIFIC_KEYPAD_ROWS: readonly ScientificKeyConfig[][] = [
       label: '(',
       ariaLabel: 'Open parenthesis',
       variant: 'function',
-      action: (h) => h.onParenthesisClick('('),
     },
     {
       id: 'sci-paren-close',
       label: ')',
       ariaLabel: 'Close parenthesis',
       variant: 'function',
-      action: (h) => h.onParenthesisClick(')'),
     },
     {
       id: 'sci-ac',
@@ -50,14 +47,12 @@ const SCIENTIFIC_KEYPAD_ROWS: readonly ScientificKeyConfig[][] = [
       ariaLabel: 'All clear',
       variant: 'danger',
       className: 'font-bold',
-      action: (h) => h.onClearClick(),
     },
     {
       id: 'sci-backspace',
       label: '⌫',
       ariaLabel: 'Backspace delete',
       variant: 'action',
-      action: (h) => h.onBackspaceClick(),
     },
   ],
 
@@ -69,7 +64,6 @@ const SCIENTIFIC_KEYPAD_ROWS: readonly ScientificKeyConfig[][] = [
       ariaLabel: 'Sine',
       variant: 'function',
       className: 'text-xs sm:text-sm font-mono',
-      action: (h) => h.onFunctionClick('sin'),
     },
     {
       id: 'sci-cos',
@@ -77,7 +71,6 @@ const SCIENTIFIC_KEYPAD_ROWS: readonly ScientificKeyConfig[][] = [
       ariaLabel: 'Cosine',
       variant: 'function',
       className: 'text-xs sm:text-sm font-mono',
-      action: (h) => h.onFunctionClick('cos'),
     },
     {
       id: 'sci-tan',
@@ -85,7 +78,6 @@ const SCIENTIFIC_KEYPAD_ROWS: readonly ScientificKeyConfig[][] = [
       ariaLabel: 'Tangent',
       variant: 'function',
       className: 'text-xs sm:text-sm font-mono',
-      action: (h) => h.onFunctionClick('tan'),
     },
     {
       id: 'sci-pi',
@@ -93,7 +85,6 @@ const SCIENTIFIC_KEYPAD_ROWS: readonly ScientificKeyConfig[][] = [
       ariaLabel: 'Pi constant',
       variant: 'function',
       className: 'font-serif italic text-base sm:text-lg',
-      action: (h) => h.onConstantClick('π'),
     },
   ],
 
@@ -109,7 +100,6 @@ const SCIENTIFIC_KEYPAD_ROWS: readonly ScientificKeyConfig[][] = [
       ariaLabel: 'Inverse sine',
       variant: 'function',
       className: 'text-xs sm:text-sm',
-      action: (h) => h.onFunctionClick('asin'),
     },
     {
       id: 'sci-acos',
@@ -121,7 +111,6 @@ const SCIENTIFIC_KEYPAD_ROWS: readonly ScientificKeyConfig[][] = [
       ariaLabel: 'Inverse cosine',
       variant: 'function',
       className: 'text-xs sm:text-sm',
-      action: (h) => h.onFunctionClick('acos'),
     },
     {
       id: 'sci-atan',
@@ -133,7 +122,6 @@ const SCIENTIFIC_KEYPAD_ROWS: readonly ScientificKeyConfig[][] = [
       ariaLabel: 'Inverse tangent',
       variant: 'function',
       className: 'text-xs sm:text-sm',
-      action: (h) => h.onFunctionClick('atan'),
     },
     {
       id: 'sci-e',
@@ -141,7 +129,6 @@ const SCIENTIFIC_KEYPAD_ROWS: readonly ScientificKeyConfig[][] = [
       ariaLabel: 'Euler constant',
       variant: 'function',
       className: 'font-serif italic text-base sm:text-lg',
-      action: (h) => h.onConstantClick('e'),
     },
   ],
 
@@ -153,7 +140,6 @@ const SCIENTIFIC_KEYPAD_ROWS: readonly ScientificKeyConfig[][] = [
       ariaLabel: 'Natural logarithm',
       variant: 'function',
       className: 'text-xs sm:text-sm font-mono',
-      action: (h) => h.onFunctionClick('ln'),
     },
     {
       id: 'sci-log',
@@ -161,7 +147,6 @@ const SCIENTIFIC_KEYPAD_ROWS: readonly ScientificKeyConfig[][] = [
       ariaLabel: 'Base-10 logarithm',
       variant: 'function',
       className: 'text-xs sm:text-sm font-mono',
-      action: (h) => h.onFunctionClick('log'),
     },
     {
       id: 'sci-sqrt',
@@ -169,7 +154,6 @@ const SCIENTIFIC_KEYPAD_ROWS: readonly ScientificKeyConfig[][] = [
       ariaLabel: 'Square root',
       variant: 'function',
       className: 'text-base sm:text-lg',
-      action: (h) => h.onFunctionClick('sqrt'),
     },
     {
       id: 'sci-square',
@@ -181,7 +165,6 @@ const SCIENTIFIC_KEYPAD_ROWS: readonly ScientificKeyConfig[][] = [
       ariaLabel: 'Square',
       variant: 'function',
       className: 'text-xs sm:text-sm font-mono',
-      action: (h) => h.onPostfixClick('^2'),
     },
   ],
 
@@ -197,7 +180,6 @@ const SCIENTIFIC_KEYPAD_ROWS: readonly ScientificKeyConfig[][] = [
       ariaLabel: 'Power',
       variant: 'function',
       className: 'text-xs sm:text-sm font-mono',
-      action: (h) => h.onOperatorClick('^'),
     },
     {
       id: 'sci-cbrt',
@@ -205,7 +187,6 @@ const SCIENTIFIC_KEYPAD_ROWS: readonly ScientificKeyConfig[][] = [
       ariaLabel: 'Cube root',
       variant: 'function',
       className: 'text-xs sm:text-sm font-mono',
-      action: (h) => h.onFunctionClick('cbrt'),
     },
     {
       id: 'sci-factorial',
@@ -213,7 +194,6 @@ const SCIENTIFIC_KEYPAD_ROWS: readonly ScientificKeyConfig[][] = [
       ariaLabel: 'Factorial',
       variant: 'function',
       className: 'text-base sm:text-lg font-mono font-bold',
-      action: (h) => h.onPostfixClick('!'),
     },
     {
       id: 'sci-modulo',
@@ -221,7 +201,6 @@ const SCIENTIFIC_KEYPAD_ROWS: readonly ScientificKeyConfig[][] = [
       ariaLabel: 'Modulo remainder',
       variant: 'function',
       className: 'text-base sm:text-lg font-mono',
-      action: (h) => h.onOperatorClick('%'),
     },
   ],
 
@@ -232,21 +211,18 @@ const SCIENTIFIC_KEYPAD_ROWS: readonly ScientificKeyConfig[][] = [
       label: '7',
       ariaLabel: 'Seven',
       variant: 'number',
-      action: (h) => h.onDigitClick('7'),
     },
     {
       id: 'sci-8',
       label: '8',
       ariaLabel: 'Eight',
       variant: 'number',
-      action: (h) => h.onDigitClick('8'),
     },
     {
       id: 'sci-9',
       label: '9',
       ariaLabel: 'Nine',
       variant: 'number',
-      action: (h) => h.onDigitClick('9'),
     },
     {
       id: 'sci-divide',
@@ -254,7 +230,6 @@ const SCIENTIFIC_KEYPAD_ROWS: readonly ScientificKeyConfig[][] = [
       ariaLabel: 'Divide',
       variant: 'operator',
       className: 'font-bold text-xl',
-      action: (h) => h.onOperatorClick('÷'),
     },
   ],
 
@@ -265,21 +240,18 @@ const SCIENTIFIC_KEYPAD_ROWS: readonly ScientificKeyConfig[][] = [
       label: '4',
       ariaLabel: 'Four',
       variant: 'number',
-      action: (h) => h.onDigitClick('4'),
     },
     {
       id: 'sci-5',
       label: '5',
       ariaLabel: 'Five',
       variant: 'number',
-      action: (h) => h.onDigitClick('5'),
     },
     {
       id: 'sci-6',
       label: '6',
       ariaLabel: 'Six',
       variant: 'number',
-      action: (h) => h.onDigitClick('6'),
     },
     {
       id: 'sci-multiply',
@@ -287,7 +259,6 @@ const SCIENTIFIC_KEYPAD_ROWS: readonly ScientificKeyConfig[][] = [
       ariaLabel: 'Multiply',
       variant: 'operator',
       className: 'font-bold text-xl',
-      action: (h) => h.onOperatorClick('×'),
     },
   ],
 
@@ -298,21 +269,18 @@ const SCIENTIFIC_KEYPAD_ROWS: readonly ScientificKeyConfig[][] = [
       label: '1',
       ariaLabel: 'One',
       variant: 'number',
-      action: (h) => h.onDigitClick('1'),
     },
     {
       id: 'sci-2',
       label: '2',
       ariaLabel: 'Two',
       variant: 'number',
-      action: (h) => h.onDigitClick('2'),
     },
     {
       id: 'sci-3',
       label: '3',
       ariaLabel: 'Three',
       variant: 'number',
-      action: (h) => h.onDigitClick('3'),
     },
     {
       id: 'sci-subtract',
@@ -320,7 +288,6 @@ const SCIENTIFIC_KEYPAD_ROWS: readonly ScientificKeyConfig[][] = [
       ariaLabel: 'Subtract',
       variant: 'operator',
       className: 'font-bold text-xl',
-      action: (h) => h.onOperatorClick('-'),
     },
   ],
 
@@ -331,7 +298,6 @@ const SCIENTIFIC_KEYPAD_ROWS: readonly ScientificKeyConfig[][] = [
       label: '0',
       ariaLabel: 'Zero',
       variant: 'number',
-      action: (h) => h.onDigitClick('0'),
     },
     {
       id: 'sci-decimal',
@@ -339,7 +305,6 @@ const SCIENTIFIC_KEYPAD_ROWS: readonly ScientificKeyConfig[][] = [
       ariaLabel: 'Decimal point',
       variant: 'number',
       className: 'font-bold text-xl',
-      action: (h) => h.onDecimalClick(),
     },
     {
       id: 'sci-equals',
@@ -347,7 +312,6 @@ const SCIENTIFIC_KEYPAD_ROWS: readonly ScientificKeyConfig[][] = [
       ariaLabel: 'Calculate result',
       variant: 'equals',
       className: 'font-bold text-xl',
-      action: (h) => h.onEqualClick(),
     },
     {
       id: 'sci-add',
@@ -355,17 +319,77 @@ const SCIENTIFIC_KEYPAD_ROWS: readonly ScientificKeyConfig[][] = [
       ariaLabel: 'Add',
       variant: 'operator',
       className: 'font-bold text-xl',
-      action: (h) => h.onOperatorClick('+'),
     },
   ],
 ];
 
 /**
- * Data-driven, accessible Scientific Keypad component.
+ * Data-driven, memoized Scientific Keypad component.
  * 4-column x 9-row layout integrating functions, constants, roots, powers,
- * factorials, and standard arithmetic keys with responsive touch targets.
+ * factorials, and standard arithmetic keys with reference-stable callbacks.
  */
-export const ScientificKeypad: React.FC<ScientificKeypadProps> = (props) => {
+export const ScientificKeypad: React.FC<ScientificKeypadProps> = React.memo(({
+  onDigitClick,
+  onOperatorClick,
+  onDecimalClick,
+  onParenthesisClick,
+  onFunctionClick,
+  onConstantClick,
+  onPostfixClick,
+  onClearClick,
+  onEqualClick,
+  onBackspaceClick,
+}) => {
+  const handlers = useMemo<Record<string, () => void>>(() => ({
+    'sci-paren-open': () => onParenthesisClick('('),
+    'sci-paren-close': () => onParenthesisClick(')'),
+    'sci-ac': () => onClearClick(),
+    'sci-backspace': () => onBackspaceClick(),
+    'sci-sin': () => onFunctionClick('sin'),
+    'sci-cos': () => onFunctionClick('cos'),
+    'sci-tan': () => onFunctionClick('tan'),
+    'sci-pi': () => onConstantClick('π'),
+    'sci-asin': () => onFunctionClick('asin'),
+    'sci-acos': () => onFunctionClick('acos'),
+    'sci-atan': () => onFunctionClick('atan'),
+    'sci-e': () => onConstantClick('e'),
+    'sci-ln': () => onFunctionClick('ln'),
+    'sci-log': () => onFunctionClick('log'),
+    'sci-sqrt': () => onFunctionClick('sqrt'),
+    'sci-square': () => onPostfixClick('^2'),
+    'sci-power': () => onOperatorClick('^'),
+    'sci-cbrt': () => onFunctionClick('cbrt'),
+    'sci-factorial': () => onPostfixClick('!'),
+    'sci-modulo': () => onOperatorClick('%'),
+    'sci-7': () => onDigitClick('7'),
+    'sci-8': () => onDigitClick('8'),
+    'sci-9': () => onDigitClick('9'),
+    'sci-divide': () => onOperatorClick('÷'),
+    'sci-4': () => onDigitClick('4'),
+    'sci-5': () => onDigitClick('5'),
+    'sci-6': () => onDigitClick('6'),
+    'sci-multiply': () => onOperatorClick('×'),
+    'sci-1': () => onDigitClick('1'),
+    'sci-2': () => onDigitClick('2'),
+    'sci-3': () => onDigitClick('3'),
+    'sci-subtract': () => onOperatorClick('-'),
+    'sci-0': () => onDigitClick('0'),
+    'sci-decimal': () => onDecimalClick(),
+    'sci-equals': () => onEqualClick(),
+    'sci-add': () => onOperatorClick('+'),
+  }), [
+    onDigitClick,
+    onOperatorClick,
+    onDecimalClick,
+    onParenthesisClick,
+    onFunctionClick,
+    onConstantClick,
+    onPostfixClick,
+    onClearClick,
+    onEqualClick,
+    onBackspaceClick,
+  ]);
+
   return (
     <div
       role="group"
@@ -378,21 +402,21 @@ export const ScientificKeypad: React.FC<ScientificKeypadProps> = (props) => {
           className="grid grid-cols-4 gap-1 xs:gap-1.5 w-full flex-1 min-h-0"
           style={{ gridAutoRows: '1fr' }}
         >
-          {row.map((btn) => {
-            return (
-              <CalculatorButton
-                key={btn.id}
-                id={btn.id}
-                label={btn.label}
-                ariaLabel={btn.ariaLabel}
-                variant={btn.variant}
-                className={`h-full min-h-0 text-sm ${btn.className ?? ''}`}
-                onClick={() => btn.action(props)}
-              />
-            );
-          })}
+          {row.map((btn) => (
+            <CalculatorButton
+              key={btn.id}
+              id={btn.id}
+              label={btn.label}
+              ariaLabel={btn.ariaLabel}
+              variant={btn.variant}
+              className={`h-full min-h-0 text-sm ${btn.className ?? ''}`}
+              onClick={handlers[btn.id]}
+            />
+          ))}
         </div>
       ))}
     </div>
   );
-};
+});
+
+ScientificKeypad.displayName = 'ScientificKeypad';

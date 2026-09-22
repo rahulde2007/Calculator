@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { OperatorSymbol, ButtonVariant } from '../../types/calculator';
 import { CalculatorButton } from './CalculatorButton';
 
@@ -19,7 +19,6 @@ interface KeyConfig {
   readonly variant: ButtonVariant;
   readonly spanCols?: number | undefined;
   readonly subLabel?: string | undefined;
-  readonly action: (handlers: KeypadProps) => void;
 }
 
 /**
@@ -31,28 +30,24 @@ const UTILITY_BUTTONS: readonly KeyConfig[] = [
     label: '(',
     ariaLabel: 'Open parenthesis',
     variant: 'function',
-    action: (h) => h.onParenthesisClick?.('('),
   },
   {
     id: 'btn-paren-close',
     label: ')',
     ariaLabel: 'Close parenthesis',
     variant: 'function',
-    action: (h) => h.onParenthesisClick?.(')'),
   },
   {
     id: 'btn-modulo',
     label: '%',
     ariaLabel: 'Modulo remainder',
     variant: 'function',
-    action: (h) => h.onOperatorClick?.('%'),
   },
   {
     id: 'btn-backspace',
     label: '⌫',
     ariaLabel: 'Backspace delete',
     variant: 'action',
-    action: (h) => h.onBackspaceClick?.(),
   },
 ];
 
@@ -66,28 +61,24 @@ const MAIN_KEYPAD_BUTTONS: readonly KeyConfig[] = [
     label: 'AC',
     ariaLabel: 'All clear',
     variant: 'danger',
-    action: (h) => h.onClearClick?.(),
   },
   {
     id: 'btn-divide',
     label: '÷',
     ariaLabel: 'Divide',
     variant: 'operator',
-    action: (h) => h.onOperatorClick?.('÷'),
   },
   {
     id: 'btn-multiply',
     label: '×',
     ariaLabel: 'Multiply',
     variant: 'operator',
-    action: (h) => h.onOperatorClick?.('×'),
   },
   {
     id: 'btn-subtract',
     label: '−',
     ariaLabel: 'Subtract',
     variant: 'operator',
-    action: (h) => h.onOperatorClick?.('-'),
   },
 
   // Row 2
@@ -96,28 +87,24 @@ const MAIN_KEYPAD_BUTTONS: readonly KeyConfig[] = [
     label: '7',
     ariaLabel: 'Seven',
     variant: 'number',
-    action: (h) => h.onDigitClick?.('7'),
   },
   {
     id: 'btn-8',
     label: '8',
     ariaLabel: 'Eight',
     variant: 'number',
-    action: (h) => h.onDigitClick?.('8'),
   },
   {
     id: 'btn-9',
     label: '9',
     ariaLabel: 'Nine',
     variant: 'number',
-    action: (h) => h.onDigitClick?.('9'),
   },
   {
     id: 'btn-add',
     label: '+',
     ariaLabel: 'Add',
     variant: 'operator',
-    action: (h) => h.onOperatorClick?.('+'),
   },
 
   // Row 3
@@ -126,28 +113,24 @@ const MAIN_KEYPAD_BUTTONS: readonly KeyConfig[] = [
     label: '4',
     ariaLabel: 'Four',
     variant: 'number',
-    action: (h) => h.onDigitClick?.('4'),
   },
   {
     id: 'btn-5',
     label: '5',
     ariaLabel: 'Five',
     variant: 'number',
-    action: (h) => h.onDigitClick?.('5'),
   },
   {
     id: 'btn-6',
     label: '6',
     ariaLabel: 'Six',
     variant: 'number',
-    action: (h) => h.onDigitClick?.('6'),
   },
   {
     id: 'btn-equals',
     label: '=',
     ariaLabel: 'Calculate result',
     variant: 'equals',
-    action: (h) => h.onEqualClick?.(),
   },
 
   // Row 4
@@ -156,28 +139,24 @@ const MAIN_KEYPAD_BUTTONS: readonly KeyConfig[] = [
     label: '1',
     ariaLabel: 'One',
     variant: 'number',
-    action: (h) => h.onDigitClick?.('1'),
   },
   {
     id: 'btn-2',
     label: '2',
     ariaLabel: 'Two',
     variant: 'number',
-    action: (h) => h.onDigitClick?.('2'),
   },
   {
     id: 'btn-3',
     label: '3',
     ariaLabel: 'Three',
     variant: 'number',
-    action: (h) => h.onDigitClick?.('3'),
   },
   {
     id: 'btn-decimal',
     label: '.',
     ariaLabel: 'Decimal point',
     variant: 'number',
-    action: (h) => h.onDecimalClick?.(),
   },
 
   // Row 5: Large Zero key
@@ -187,16 +166,55 @@ const MAIN_KEYPAD_BUTTONS: readonly KeyConfig[] = [
     ariaLabel: 'Zero',
     variant: 'number',
     spanCols: 4,
-    action: (h) => h.onDigitClick?.('0'),
   },
 ];
 
 /**
- * Data-driven, accessible Keypad component.
- * Integrates utility expression controls (parentheses, modulo, backspace)
- * with the standard 4-column arithmetic grid.
+ * Data-driven, memoized Keypad component.
+ * Integrates utility expression controls with standard arithmetic grid
+ * with reference-stable callbacks to eliminate re-renders during typing.
  */
-export const Keypad: React.FC<KeypadProps> = (props) => {
+export const Keypad: React.FC<KeypadProps> = React.memo(({
+  onDigitClick,
+  onOperatorClick,
+  onDecimalClick,
+  onParenthesisClick,
+  onClearClick,
+  onEqualClick,
+  onBackspaceClick,
+}) => {
+  const handlers = useMemo<Record<string, () => void>>(() => ({
+    'btn-paren-open': () => onParenthesisClick?.('('),
+    'btn-paren-close': () => onParenthesisClick?.(')'),
+    'btn-modulo': () => onOperatorClick?.('%'),
+    'btn-backspace': () => onBackspaceClick?.(),
+    'btn-ac': () => onClearClick?.(),
+    'btn-divide': () => onOperatorClick?.('÷'),
+    'btn-multiply': () => onOperatorClick?.('×'),
+    'btn-subtract': () => onOperatorClick?.('-'),
+    'btn-7': () => onDigitClick?.('7'),
+    'btn-8': () => onDigitClick?.('8'),
+    'btn-9': () => onDigitClick?.('9'),
+    'btn-add': () => onOperatorClick?.('+'),
+    'btn-4': () => onDigitClick?.('4'),
+    'btn-5': () => onDigitClick?.('5'),
+    'btn-6': () => onDigitClick?.('6'),
+    'btn-equals': () => onEqualClick?.(),
+    'btn-1': () => onDigitClick?.('1'),
+    'btn-2': () => onDigitClick?.('2'),
+    'btn-3': () => onDigitClick?.('3'),
+    'btn-decimal': () => onDecimalClick?.(),
+    'btn-0': () => onDigitClick?.('0'),
+  }), [
+    onDigitClick,
+    onOperatorClick,
+    onDecimalClick,
+    onParenthesisClick,
+    onClearClick,
+    onEqualClick,
+    onBackspaceClick,
+  ]);
+
   return (
     <div role="group" aria-label="Calculator Keypad" className="flex flex-col gap-1.5 sm:gap-2 w-full flex-1 min-h-0">
       {/* Expression Utilities Row */}
@@ -210,7 +228,7 @@ export const Keypad: React.FC<KeypadProps> = (props) => {
             variant={btn.variant}
             spanCols={btn.spanCols}
             className="h-9 sm:h-10 text-base font-mono"
-            onClick={() => btn.action(props)}
+            onClick={handlers[btn.id]}
           />
         ))}
       </div>
@@ -226,10 +244,12 @@ export const Keypad: React.FC<KeypadProps> = (props) => {
             variant={btn.variant}
             spanCols={btn.spanCols}
             className="h-full min-h-0"
-            onClick={() => btn.action(props)}
+            onClick={handlers[btn.id]}
           />
         ))}
       </div>
     </div>
   );
-};
+});
+
+Keypad.displayName = 'Keypad';

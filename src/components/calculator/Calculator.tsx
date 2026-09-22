@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Display } from './Display';
 import { Keypad } from './Keypad';
 import { ScientificKeypad } from './ScientificKeypad';
@@ -11,19 +11,26 @@ export interface CalculatorProps {
   readonly calculator?: UseCalculatorReturn | undefined;
   readonly onOpenConverter?: (() => void) | undefined;
   readonly isConverterOpen?: boolean | undefined;
+  readonly keyboardEnabled?: boolean | undefined;
+}
+
+interface CalculatorViewProps {
+  readonly calc: UseCalculatorReturn;
+  readonly onOpenConverter?: (() => void) | undefined;
+  readonly isConverterOpen?: boolean | undefined;
+  readonly keyboardEnabled?: boolean | undefined;
 }
 
 /**
- * Interactive Calculator Container Component.
- * Binds the reactive state machine and keyboard inputs to Display, Keypad, and ScientificKeypad.
+ * Presentational core for the Calculator.
+ * Wrapped in React.memo to prevent unnecessary repaints.
  */
-export const Calculator: React.FC<CalculatorProps> = ({
-  calculator: externalCalculator,
+const CalculatorView: React.FC<CalculatorViewProps> = React.memo(({
+  calc,
   onOpenConverter,
   isConverterOpen = false,
+  keyboardEnabled = true,
 }) => {
-  const defaultCalculator = useCalculator();
-  const calc = externalCalculator ?? defaultCalculator;
   const {
     state,
     dispatch,
@@ -43,21 +50,38 @@ export const Calculator: React.FC<CalculatorProps> = ({
     memoryRecall,
     memoryAdd,
     memorySubtract,
+    livePreview,
   } = calc;
 
-  // Listen to physical keyboard events
-  useKeyboard({ onAction: dispatch });
+  // Listen to physical keyboard events with modal isolation
+  useKeyboard({ enabled: keyboardEnabled, onAction: dispatch });
 
   const isScientific = state.mode === 'scientific';
+
+  const handleMemoryAdd = useCallback(() => {
+    memoryAdd();
+  }, [memoryAdd]);
+
+  const handleMemorySubtract = useCallback(() => {
+    memorySubtract();
+  }, [memorySubtract]);
+
+  const handleSetStandard = useCallback(() => {
+    setMode('standard');
+  }, [setMode]);
+
+  const handleSetScientific = useCallback(() => {
+    setMode('scientific');
+  }, [setMode]);
 
   return (
     <div
       className={`
         relative w-full flex-1 min-h-0
-        rounded-calc-shell bg-calc-surface/95
+        rounded-calc-shell bg-calc-surface
         border border-calc-border-subtle
-        shadow-calc-shell backdrop-blur-2xl
-        flex flex-col transition-all duration-200 ease-out
+        shadow-calc-shell
+        flex flex-col
         ${isScientific
           ? 'p-2.5 xs:p-3 sm:p-4 gap-1.5 xs:gap-2 sm:gap-2.5'
           : 'p-3 sm:p-4 gap-2.5 sm:gap-3'}
@@ -89,9 +113,9 @@ export const Calculator: React.FC<CalculatorProps> = ({
             type="button"
             role="tab"
             aria-selected={!isConverterOpen && state.mode === 'standard'}
-            onClick={() => setMode('standard')}
+            onClick={handleSetStandard}
             className={`
-              min-h-[36px] px-3 py-1 text-[11px] font-medium rounded-md transition-all duration-150 flex items-center justify-center
+              min-h-[36px] px-3 py-1 text-[11px] font-medium rounded-md transition-colors duration-100 flex items-center justify-center
               ${!isConverterOpen && state.mode === 'standard'
                 ? 'bg-calc-accent text-white shadow-sm font-semibold'
                 : 'text-calc-text-secondary hover:text-calc-text-primary'}
@@ -103,9 +127,9 @@ export const Calculator: React.FC<CalculatorProps> = ({
             type="button"
             role="tab"
             aria-selected={!isConverterOpen && state.mode === 'scientific'}
-            onClick={() => setMode('scientific')}
+            onClick={handleSetScientific}
             className={`
-              min-h-[36px] px-3 py-1 text-[11px] font-medium rounded-md transition-all duration-150 flex items-center justify-center
+              min-h-[36px] px-3 py-1 text-[11px] font-medium rounded-md transition-colors duration-100 flex items-center justify-center
               ${!isConverterOpen && state.mode === 'scientific'
                 ? 'bg-calc-accent text-white shadow-sm font-semibold'
                 : 'text-calc-text-secondary hover:text-calc-text-primary'}
@@ -120,7 +144,7 @@ export const Calculator: React.FC<CalculatorProps> = ({
               aria-selected={isConverterOpen}
               onClick={onOpenConverter}
               className={`
-                min-h-[36px] px-3 py-1 text-[11px] font-medium rounded-md transition-all duration-150 flex items-center justify-center
+                min-h-[36px] px-3 py-1 text-[11px] font-medium rounded-md transition-colors duration-100 flex items-center justify-center
                 ${isConverterOpen
                   ? 'bg-calc-accent text-white shadow-sm font-semibold'
                   : 'text-calc-text-secondary hover:text-calc-text-primary'}
@@ -143,7 +167,7 @@ export const Calculator: React.FC<CalculatorProps> = ({
           hasMemory={state.memory !== 0}
           memoryValue={state.memory}
           isCompact={isScientific}
-          livePreview={calc.livePreview}
+          livePreview={livePreview}
         />
       </section>
 
@@ -153,8 +177,8 @@ export const Calculator: React.FC<CalculatorProps> = ({
           hasMemory={state.memory !== 0}
           onMemoryClear={memoryClear}
           onMemoryRecall={memoryRecall}
-          onMemoryAdd={() => memoryAdd()}
-          onMemorySubtract={() => memorySubtract()}
+          onMemoryAdd={handleMemoryAdd}
+          onMemorySubtract={handleMemorySubtract}
           isCompact={isScientific}
         />
       </section>
@@ -206,4 +230,29 @@ export const Calculator: React.FC<CalculatorProps> = ({
       </div>
     </div>
   );
+});
+
+CalculatorView.displayName = 'CalculatorView';
+
+/**
+ * Standalone wrapper for Calculator when no external instance is passed.
+ * Separated to avoid calling useCalculator() conditionally or redundantly.
+ */
+const CalculatorStandalone: React.FC<Omit<CalculatorProps, 'calculator'>> = (props) => {
+  const calc = useCalculator();
+  return <CalculatorView calc={calc} {...props} />;
+};
+
+/**
+ * Interactive Calculator Container Component.
+ * Binds the reactive state machine and keyboard inputs to Display, Keypad, and ScientificKeypad.
+ */
+export const Calculator: React.FC<CalculatorProps> = ({
+  calculator,
+  ...props
+}) => {
+  if (calculator) {
+    return <CalculatorView calc={calculator} {...props} />;
+  }
+  return <CalculatorStandalone {...props} />;
 };

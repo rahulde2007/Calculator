@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import type { CalculationHistoryItem } from '../../types/calculator';
 import { HistoryItem } from './HistoryItem';
 import { Modal } from '../common/Modal';
@@ -18,8 +18,9 @@ export interface HistoryPanelProps {
  * History panel drawer component adhering to Calcx-Pro design tokens.
  * Supports individual item deletion, copy actions, RFC 4180 CSV export,
  * and a modal confirmation for clearing all history.
+ * Memoized for smooth, jank-free performance.
  */
-export const HistoryPanel: React.FC<HistoryPanelProps> = ({
+export const HistoryPanel: React.FC<HistoryPanelProps> = React.memo(({
   items,
   onSelectItem,
   onClearHistory,
@@ -30,19 +31,19 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
 }) => {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState<boolean>(false);
 
-  const handleExport = () => {
+  const handleExport = useCallback(() => {
     if (items.length === 0) return;
     if (onExportHistory) {
       onExportHistory();
     } else {
       exportHistoryAsCSV(items);
     }
-  };
+  }, [items, onExportHistory]);
 
-  const handleConfirmClear = () => {
+  const handleConfirmClear = useCallback(() => {
     onClearHistory?.();
     setIsConfirmModalOpen(false);
-  };
+  }, [onClearHistory]);
 
   return (
     <>
@@ -134,8 +135,8 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
           </div>
         </div>
 
-        {/* Scrollable Calculation List */}
-        <div className="flex-1 overflow-y-auto space-y-2 pr-1 scrollbar-thin">
+        {/* Scrollable Calculation List with touch optimization */}
+        <div className="flex-1 overflow-y-auto space-y-2 pr-1 scrollbar-thin smooth-scroll">
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-56 text-center p-4 select-none">
               <div className="w-10 h-10 rounded-full bg-calc-surface-secondary border border-calc-border-subtle flex items-center justify-center text-calc-text-muted mb-2 text-base">
@@ -200,4 +201,6 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
       </Modal>
     </>
   );
-};
+});
+
+HistoryPanel.displayName = 'HistoryPanel';
